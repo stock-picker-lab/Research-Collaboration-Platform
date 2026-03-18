@@ -38,9 +38,8 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Docs & Deploy (private)
+# Docs (private)
 DEPLOY.md
-deploy.sh
 
 # CodeBuddy
 .codebuddy/
