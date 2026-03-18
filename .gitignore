@@ -38,6 +38,12 @@ logs/
 .DS_Store
 Thumbs.db
 
+# Docs (private)
+DEPLOY.md
+
+# CodeBuddy
+.codebuddy/
+
 # Docker
 docker/data/
 
