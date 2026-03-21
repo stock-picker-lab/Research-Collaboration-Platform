@@ -12,11 +12,14 @@ from sqlalchemy import (
     String, Text, Integer, Float, Boolean, DateTime, Enum, ForeignKey,
     JSON, Index, UniqueConstraint,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 import uuid
 
-from app.core.database import Base
+
+class Base(DeclarativeBase):
+    """独立的 Base，不与 models.py 共用，避免表重复定义冲突"""
+    pass
 
 
 # ============================================
