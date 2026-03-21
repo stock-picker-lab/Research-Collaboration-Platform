@@ -80,6 +80,11 @@ class RoleChecker:
         return current_user
 
 
+def require_role(role: "UserRole") -> RoleChecker:
+    """快捷角色检查器，支持传入 UserRole 枚举值"""
+    return RoleChecker([role.value])
+
+
 # 预定义角色检查器
 allow_researcher = RoleChecker(["researcher", "admin"])
 allow_pm = RoleChecker(["pm", "admin"])
