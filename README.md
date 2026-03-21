@@ -2,9 +2,22 @@
 
 > 面向基金公司研究所的智能投研协作平台，支持研究员、基金经理、研究所领导、系统管理员四种角色，实现研究文档管理、公司跟踪、问题协作、结论卡片、持仓管理等核心功能。
 
+**⚠️ 项目状态:** 开发中 (MVP 阶段,约 45% 完成度)
+
+**核心特性:**
+- 🎯 四角色权限体系 (研究员/基金经理/领导/管理员)
+- 📚 研究文档集中管理与 AI 分析
+- 💡 结构化结论卡 (3-3-2-1 框架)
+- 🤝 研究协作与问题追踪
+- 📊 持仓管理与预警系统
+- 🤖 OpenClaw 多 Agent 协同 (设计中)
+- 🚀 Docker 一键部署
+
 ---
 
-## 1. OpenClaw 多 Agent 协同框架（核心亮点）
+## 1. OpenClaw 多 Agent 协同框架（核心设计）
+
+> **📋 状态:** 架构设计已完成,代码实现进行中 (~10% 完成度)
 
 ### 1.1 为什么引入 OpenClaw？
 
@@ -884,20 +897,29 @@ ConversationType = "qa" | "research" | "event_analysis" | "peer_comparison"
 
 ### 7.1 技术栈
 
-| 层级 | 技术选型 | 说明 |
-|------|----------|------|
-| **前端框架** | React 18 + TypeScript | 类型安全 |
-| **前端路由** | Next.js 14 App Router | 服务端渲染，SEO 友好 |
-| **UI 组件** | TDesign | 腾讯企业级设计系统 |
-| **状态管理** | Zustand | 轻量级状态管理 |
-| **数据请求** | TanStack Query | 服务端状态管理，缓存 |
-| **后端框架** | FastAPI | 高性能异步 API |
-| **ORM** | SQLAlchemy 2.0 | 异步 ORM |
-| **数据库** | PostgreSQL 16 + pgvector | 关系型 + 向量检索 |
-| **缓存** | Redis 7 | 会话缓存，任务队列 |
-| **认证** | JWT | 无状态认证 |
-| **AI Agent** | **OpenClaw + Agent Orchestrator** | **多 Agent 协同编排（核心亮点）** |
-| **部署** | Docker Compose + Nginx | 容器化部署 |
+| 层级 | 技术选型 | 版本 | 说明 |
+|------|----------|------|------|
+| **前端框架** | React 18 + TypeScript | 18.3.x | 类型安全的现代前端 |
+| **前端路由** | Next.js 14 App Router | 14.2.x | 服务端渲染,SEO 友好 |
+| **UI 组件** | TDesign React | 1.1.x | 腾讯企业级设计系统 |
+| **样式方案** | Tailwind CSS | 4.x | 实用优先的 CSS 框架 |
+| **状态管理** | Zustand | 5.x | 轻量级状态管理 |
+| **数据请求** | TanStack Query | 5.x | 服务端状态管理、缓存 |
+| **图表组件** | Recharts | 2.15.x | 声明式图表库 |
+| **后端框架** | FastAPI | latest | 高性能异步 Python API |
+| **ORM** | SQLAlchemy 2.0 | 2.0.x | 异步 ORM,完整类型提示 |
+| **数据库** | PostgreSQL 16 | 16.x | 关系型数据库 |
+| **向量检索** | pgvector | latest | PostgreSQL 向量扩展 (规划中) |
+| **缓存** | Redis 7 | 7.x | 会话缓存、任务队列 |
+| **认证** | JWT | - | 无状态认证 |
+| **文件存储** | MinIO (S3 兼容) | latest | 本地对象存储 |
+| **任务队列** | Celery | latest | 异步任务处理 (规划中) |
+| **AI Agent** | OpenClaw (设计中) | - | 多 Agent 协同编排框架 |
+| **LLM API** | OpenAI 兼容 API | - | 支持 GPT-4、DeepSeek 等 |
+| **反向代理** | Nginx | alpine | HTTP 服务器与反向代理 |
+| **容器化** | Docker + Compose | latest | 一键部署方案 |
+| **包管理器** | npm | 10.x | 前端依赖管理 |
+| **Python 包管理** | pip | latest | 后端依赖管理 |
 
 ### 7.2 系统架构图
 
@@ -1070,6 +1092,21 @@ investment-research-platform/
 
 ### 8.2 Docker 部署（推荐）
 
+**方式一：使用一键部署脚本（最简单）**
+
+```bash
+# 1. 克隆项目
+git clone https://github.com/stock-picker-lab/Research-Collaboration-Platform.git
+cd Research-Collaboration-Platform
+
+# 2. 运行部署脚本
+bash deploy.sh
+
+# 脚本会自动完成所有配置和部署
+```
+
+**方式二：手动 Docker 部署**
+
 ```bash
 # 1. 克隆项目
 git clone https://github.com/stock-picker-lab/Research-Collaboration-Platform.git
@@ -1080,10 +1117,10 @@ cp .env.example .env
 # 编辑 .env 填入必要配置
 
 # 3. 启动所有服务
-docker-compose up -d --build
+docker compose up -d --build
 
 # 4. 初始化数据库（如需要）
-docker-compose exec backend python -m app.db.init_db
+docker compose exec backend python -m app.db.init_db
 
 # 5. 访问应用
 # 前端: http://localhost:3000
@@ -1120,11 +1157,22 @@ npm run dev
 
 ### 8.4 演示模式登录
 
-系统支持演示模式，无需后端即可体验前端：
+系统支持演示模式,无需后端即可体验前端功能:
 
-1. 打开 http://localhost:3000/login
-2. 选择角色（研究员/基金经理/研究所领导/系统管理员）
-3. 点击登录，直接进入对应工作台
+**访问地址:** http://localhost:3000/login
+
+**演示账号:**
+- **用户名:** 任意输入
+- **密码:** `demo123`
+- **角色:** 选择要体验的角色(研究员/基金经理/研究所领导/系统管理员)
+
+**真实后端账号(需要后端服务启动):**
+- **管理员:** admin / admin123
+- **研究员:** researcher1 / research123
+- **基金经理:** pm1 / pm123
+- **领导:** leader1 / leader123
+
+点击登录后,将直接进入对应角色的工作台。
 
 ---
 
@@ -1159,56 +1207,129 @@ npm run dev
     └───────────────┘ └───────────┘ └──────────────┘
 ```
 
-### 9.2 云服务器部署命令
+### 9.2 云服务器一键部署
+
+**使用自动化脚本（推荐）：**
 
 ```bash
 # 1. SSH 连接云服务器
 ssh user@your-server-ip
 
-# 2. 进入项目目录
-cd /path/to/investment-research-platform
+# 2. 克隆项目（首次部署）
+git clone https://github.com/stock-picker-lab/Research-Collaboration-Platform.git
+cd Research-Collaboration-Platform
 
-# 3. 拉取最新代码
+# 3. 运行一键部署脚本
+bash deploy.sh
+```
+
+**脚本会自动完成：**
+- ✅ 检查/安装 Docker 环境
+- ✅ 检查磁盘空间
+- ✅ 生成安全密钥和环境变量
+- ✅ 构建所有 Docker 镜像
+- ✅ 启动所有服务
+- ✅ 初始化数据库
+
+**更新部署：**
+
+```bash
+# 拉取最新代码并重新部署
+cd Research-Collaboration-Platform
 git pull origin main
+bash deploy.sh
+```
 
-# 4. 构建并启动服务
-docker-compose -f docker-compose.prod.yml up -d --build
+**手动管理服务：**
 
-# 5. 查看日志
-docker-compose -f docker-compose.prod.yml logs -f
+```bash
+# 查看日志
+docker compose -f docker-compose.prod.yml logs -f
 
-# 6. 检查服务状态
-docker-compose -f docker-compose.prod.yml ps
+# 重启服务
+docker compose -f docker-compose.prod.yml restart
+
+# 停止服务
+docker compose -f docker-compose.prod.yml down
+
+# 检查服务状态
+docker compose -f docker-compose.prod.yml ps
 ```
 
 ### 9.3 环境变量配置
 
 **.env 文件配置项：**
 ```bash
-# 数据库
+# ============================================
+# 数据库配置
+# ============================================
 DATABASE_URL=postgresql+asyncpg://user:password@host:5432/dbname
+DATABASE_SYNC_URL=postgresql://user:password@host:5432/dbname
 
-# Redis
+# ============================================
+# Redis 配置
+# ============================================
 REDIS_URL=redis://host:6379/0
 
-# JWT
-JWT_SECRET=your-256-bit-secret-key
+# ============================================
+# 认证与安全
+# ============================================
+JWT_SECRET_KEY=your-256-bit-secret-key  # 使用 openssl rand -hex 32 生成
 JWT_ALGORITHM=HS256
 JWT_EXPIRE_MINUTES=30
+SECRET_KEY=your-secret-key  # 用于其他加密场景
 
-# CORS
-CORS_ORIGINS=https://your-domain.com
+# ============================================
+# CORS 跨域配置
+# ============================================
+CORS_ORIGINS=["http://localhost:3000","https://your-domain.com"]
 
-# 文件存储（可选）
-OSS_ACCESS_KEY=xxx
-OSS_SECRET_KEY=xxx
-OSS_BUCKET=research-docs
-OSS_ENDPOINT=oss-cn-hangzhou.aliyuncs.com
+# ============================================
+# AI Agent / LLM API (OpenClaw 多 Agent 必需)
+# ============================================
+# OpenAI 兼容 API
+LLM_API_KEY=sk-xxx  # 你的 API Key
+LLM_BASE_URL=https://api.openai.com/v1  # 或其他兼容 API
+LLM_MODEL=gpt-4-turbo  # 默认模型
 
-# LLM API（AI Agent 支持）
-LLM_API_KEY=xxx
-LLM_BASE_URL=https://api.openai.com/v1
+# 可选: Azure OpenAI
+# LLM_BASE_URL=https://your-resource.openai.azure.com
+# LLM_API_TYPE=azure
+# LLM_API_VERSION=2024-02-01
+
+# ============================================
+# 文件存储 (可选,默认本地存储)
+# ============================================
+# MinIO (本地 S3)
+MINIO_ENDPOINT=minio:9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET=research-docs
+
+# 或使用云存储 (阿里云 OSS)
+# OSS_ACCESS_KEY=xxx
+# OSS_SECRET_KEY=xxx
+# OSS_BUCKET=research-docs
+# OSS_ENDPOINT=oss-cn-hangzhou.aliyuncs.com
+
+# ============================================
+# Celery 任务队列 (可选,用于异步任务)
+# ============================================
+CELERY_BROKER_URL=redis://redis:6379/3
+CELERY_RESULT_BACKEND=redis://redis:6379/4
+
+# ============================================
+# 其他配置
+# ============================================
+APP_ENV=production  # 环境: development | production
+DEBUG=false  # 调试模式
+LOG_LEVEL=INFO  # 日志级别
 ```
+
+**重要提示:**
+- `LLM_API_KEY` 是 **OpenClaw 多 Agent 功能的必需配置**,没有它 AI 功能将无法使用
+- 生产环境务必使用强随机密钥: `openssl rand -hex 32`
+- 所有密码和密钥不要提交到 Git 仓库
 
 ---
 
@@ -1294,14 +1415,122 @@ result = await orchestrator.orchestrate(
 
 ---
 
-## 11. 未来规划
+## 11. 项目进度与规划
 
-- [x] **OpenClaw 多 Agent 协同** - Agent 编排框架（已实现）
-- [ ] **RAG 向量检索增强** - 使用 pgvector 实现语义搜索
-- [ ] **实时协作** - WebSocket 支持实时通知和协作
-- [ ] **移动端适配** - 响应式设计，支持移动办公
-- [ ] **数据分析** - 研究有效性分析，产出归因
+### 11.1 当前完成度
+
+| 模块 | 完成度 | 说明 |
+|------|--------|------|
+| **前端页面** | 45% | 核心页面已完成,部分页面为占位符 |
+| **后端 API** | 40% | 基础 CRUD 已完成,部分高级功能待开发 |
+| **数据库模型** | 90% | 核心模型已定义 |
+| **Docker 部署** | 95% | 一键部署脚本已完成 |
+| **OpenClaw 多 Agent** | 10% | 架构设计已完成,代码实现中 |
+
+**已完成功能:**
+- ✅ 用户认证与授权 (JWT)
+- ✅ 四角色权限体系
+- ✅ Docker 一键部署脚本
+- ✅ 前端核心页面框架
+- ✅ 数据库模型定义
+- ✅ 基础 API 路由
+
+**进行中:**
+- 🔄 OpenClaw 多 Agent 协同框架实现
+- 🔄 RAG 向量检索增强
+- 🔄 完整业务逻辑开发
+
+### 11.2 未来规划
+
+**短期 (1-2个月):**
+- [ ] **OpenClaw 多 Agent 协同** - 完成 Agent 编排框架和核心 Agent 实现
+- [ ] **RAG 向量检索** - 使用 pgvector 实现语义搜索
+- [ ] **完整业务逻辑** - 补充所有 CRUD 操作和业务流程
+- [ ] **前端页面完善** - 将占位符页面改为完整功能页面
+
+**中期 (3-6个月):**
+- [ ] **实时协作** - WebSocket 支持实时通知和协作编辑
+- [ ] **移动端适配** - 响应式设计优化,支持移动办公
+- [ ] **数据分析** - 研究有效性分析,产出归因
+- [ ] **性能优化** - 缓存策略、查询优化
+
+**长期 (6-12个月):**
 - [ ] **自定义 Agent** - 支持用户自定义 Agent 提示词和流程
+- [ ] **知识图谱** - 构建公司关系图谱和行业知识图谱
+- [ ] **智能推荐** - 基于历史数据的研究推荐系统
+- [ ] **企业集成** - 与 Wind、Bloomberg 等数据源集成
+
+---
+
+## 12. 常见问题 (FAQ)
+
+### Q1: OpenClaw 多 Agent 功能能用吗?
+
+**A:** OpenClaw 的架构设计已完成(见第1章),但代码实现还在进行中(约10%完成度)。当前版本可以体验基础的前端界面和数据管理功能。AI Agent 功能预计在未来 1-2 个月完成。
+
+### Q2: 如何配置 LLM API?
+
+**A:** 编辑 `.env.prod` 或 `.env` 文件:
+```bash
+LLM_API_KEY=sk-xxx  # 你的 OpenAI API Key
+LLM_BASE_URL=https://api.openai.com/v1
+LLM_MODEL=gpt-4-turbo
+```
+
+支持任何 OpenAI 兼容的 API,包括 Azure OpenAI、DeepSeek、Qwen 等。
+
+### Q3: 前端构建失败怎么办?
+
+**A:** 常见原因:
+1. **Node.js 版本过低** - 需要 Node.js >= 20
+2. **内存不足** - Docker 构建需要至少 4GB 内存,修改 `frontend/Dockerfile` 中的 `NODE_OPTIONS`
+3. **网络问题** - npm install 超时,可以使用国内镜像: `npm config set registry https://registry.npmmirror.com`
+
+### Q4: 如何更新部署?
+
+**A:** 
+```bash
+cd Research-Collaboration-Platform
+git pull origin main
+bash deploy.sh  # 会自动重新构建和启动
+```
+
+### Q5: 演示模式和真实后端有什么区别?
+
+**A:** 
+- **演示模式** (密码: demo123): 前端模拟数据,无需后端服务,数据不会保存
+- **真实后端** (密码: admin123等): 连接真实数据库,数据持久化,支持完整功能
+
+### Q6: 数据库初始化失败?
+
+**A:** 检查步骤:
+```bash
+# 1. 确认 PostgreSQL 已启动
+docker compose -f docker-compose.prod.yml ps postgres
+
+# 2. 查看后端日志
+docker compose -f docker-compose.prod.yml logs backend
+
+# 3. 手动初始化
+docker exec research-backend python -m app.db.init_db
+```
+
+### Q7: 如何自定义端口?
+
+**A:** 修改 `docker-compose.prod.yml` 中的端口映射:
+```yaml
+frontend:
+  ports:
+    - "3000:3000"  # 改为 "8080:3000" 将前端映射到 8080
+
+nginx:
+  ports:
+    - "80:80"  # 改为 "8888:80" 将 Nginx 映射到 8888
+```
+
+### Q8: 项目完成度如何?
+
+**A:** 参考第 11.1 节「当前完成度」表格。核心框架已完成,基础功能可用,高级 AI 功能还在开发中。
 
 ---
 
