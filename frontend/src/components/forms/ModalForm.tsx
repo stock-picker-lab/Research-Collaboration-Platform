@@ -2,20 +2,14 @@
  * 模态框表单组件
  */
 import React from 'react';
-import { Dialog, Form, FormModel, Input, Select, Textarea, Switch, Button, Space, NumberInput } from 'tdesign-react';
-
-const { FormItem } = Form;
+import { Dialog, Input, Textarea, Select } from 'tdesign-react';
 
 interface FormField {
   key: string;
   label: string;
-  type: 'input' | 'textarea' | 'select' | 'switch' | 'number';
+  type: 'input' | 'textarea' | 'select';
   placeholder?: string;
   options?: { label: string; value: string | number }[];
-  required?: boolean;
-  rules?: any[];
-  width?: number;
-  props?: Record<string, any>;
 }
 
 interface ModalFormProps {
@@ -39,29 +33,28 @@ const ModalForm: React.FC<ModalFormProps> = ({
   loading = false,
   width = 600,
 }) => {
-  const form = React.useRef<FormModel>(new FormModel());
+  const [values, setValues] = React.useState(initialValues);
 
-  const handleSubmit = async () => {
-    const values = await form.current.validate();
-    if (values) {
-      onSubmit(values);
-    }
+  React.useEffect(() => {
+    setValues(initialValues);
+  }, [initialValues]);
+
+  const handleChange = (key: string, value: any) => {
+    setValues(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSubmit = () => {
+    onSubmit(values);
   };
 
   const renderField = (field: FormField) => {
     switch (field.type) {
       case 'textarea':
-        return <Textarea placeholder={field.placeholder} {...field.props} />;
+        return <Textarea placeholder={field.placeholder} value={values[field.key] || ''} onChange={(v) => handleChange(field.key, v)} />;
       case 'select':
-        return (
-          <Select placeholder={field.placeholder} options={field.options} {...field.props} />
-        );
-      case 'switch':
-        return <Switch {...field.props} />;
-      case 'number':
-        return <NumberInput placeholder={field.placeholder} {...field.props} />;
+        return <Select placeholder={field.placeholder} options={field.options} value={values[field.key]} onChange={(v) => handleChange(field.key, v)} />;
       default:
-        return <Input placeholder={field.placeholder} {...field.props} />;
+        return <Input placeholder={field.placeholder} value={values[field.key] || ''} onChange={(v) => handleChange(field.key, v)} />;
     }
   };
 
@@ -73,22 +66,17 @@ const ModalForm: React.FC<ModalFormProps> = ({
       onClose={onClose}
       onConfirm={handleSubmit}
       confirmLoading={loading}
-      draggable={true}
+      draggable
       placement="center"
     >
-      <Form ref={form} initialData={initialValues} labelWidth={100} layout="vertical">
+      <div className="space-y-4">
         {fields.map((field) => (
-          <FormItem
-            key={field.key}
-            label={field.label}
-            name={field.key}
-            required={field.required}
-            rules={field.rules}
-          >
-            {renderField(field)}
-          </FormItem>
+          <div key={field.key} className="flex items-center gap-4">
+            <label className="w-24 text-right text-gray-600">{field.label}</label>
+            <div className="flex-1">{renderField(field)}</div>
+          </div>
         ))}
-      </Form>
+      </div>
     </Dialog>
   );
 };

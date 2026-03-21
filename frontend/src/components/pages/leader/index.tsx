@@ -16,4 +16,15 @@ export const LeaderDashboard: React.FC = () => (
     </div>
   </Layout>
 );
+
+// Re-export all page components
+export { ConclusionsPage } from './conclusions';
+export { DatasourcePage } from './datasource';
+export { DocumentsPage } from './documents';
+export { OutputPage } from './output';
+export { QuestionsPage } from './questions';
+export { SettingsPage } from './settings';
+export { TasksPage } from './tasks';
+export { TeamPage } from './team';
+
 export default LeaderDashboard;

@@ -2,82 +2,62 @@
  * 搜索表单组件
  */
 import React from 'react';
-import { Form, FormModel, Input, Select, Button, Space, DatePicker } from 'tdesign-react';
-import { SearchIcon, ReloadIcon } from 'tdesign-react';
-
-const { FormItem } = Form;
+import { Input, Select, Button } from 'tdesign-react';
 
 interface SearchField {
   key: string;
   label: string;
-  type: 'input' | 'select' | 'date' | 'daterange';
+  type: 'input' | 'select';
   placeholder?: string;
-  options?: { label: string; value: string | number }[];
-  width?: string;
+  options?: { label: string; value: string }[];
 }
 
 interface SearchFormProps {
   fields: SearchField[];
   onSearch: (values: Record<string, any>) => void;
-  onReset?: () => void;
-  loading?: boolean;
 }
 
-const SearchForm: React.FC<SearchFormProps> = ({
-  fields,
-  onSearch,
-  onReset,
-  loading = false,
-}) => {
-  const form = React.useRef<FormModel>(new FormModel());
+const SearchForm: React.FC<SearchFormProps> = ({ fields, onSearch }) => {
+  const [values, setValues] = React.useState<Record<string, any>>({});
 
-  const handleSubmit = (values: Record<string, any>) => {
+  const handleChange = (key: string, value: any) => {
+    setValues(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSearch = () => {
     onSearch(values);
   };
 
   const handleReset = () => {
-    form.current.reset();
-    onReset?.();
-  };
-
-  const renderField = (field: SearchField) => {
-    switch (field.type) {
-      case 'select':
-        return (
-          <Select
-            placeholder={field.placeholder || `请选择${field.label}`}
-            options={field.options}
-            clearable
-          />
-        );
-      case 'date':
-        return <DatePicker mode="date" placeholder={field.placeholder || field.label} />;
-      case 'daterange':
-        return <DatePicker mode="date-range" placeholder={field.placeholder || field.label} />;
-      default:
-        return <Input placeholder={field.placeholder || `请输入${field.label}`} />;
-    }
+    setValues({});
+    onSearch({});
   };
 
   return (
-    <div className="search-form">
-      <Form ref={form} onSubmit={handleSubmit} labelWidth={80} layout="inline">
-        {fields.map((field) => (
-          <FormItem key={field.key} label={field.label} name={field.key} style={{ width: field.width || 200 }}>
-            {renderField(field)}
-          </FormItem>
-        ))}
-        <FormItem>
-          <Space>
-            <Button type="submit" icon={<SearchIcon />} loading={loading}>
-              搜索
-            </Button>
-            <Button variant="secondary" icon={<ReloadIcon />} onClick={handleReset}>
-              重置
-            </Button>
-          </Space>
-        </FormItem>
-      </Form>
+    <div className="flex gap-4 mb-4">
+      {fields.map((field) => (
+        <div key={field.key} className="flex items-center gap-2">
+          <label className="text-sm text-gray-600">{field.label}</label>
+          {field.type === 'select' ? (
+            <Select
+              placeholder={field.placeholder}
+              options={field.options}
+              value={values[field.key]}
+              onChange={(v) => handleChange(field.key, v)}
+              style={{ width: 150 }}
+            />
+          ) : (
+            <Input
+              placeholder={field.placeholder}
+              value={values[field.key] || ''}
+              onChange={(v) => handleChange(field.key, v)}
+              style={{ width: 150 }}
+            />
+          )}
+        </div>
+      ))}
+      <Button theme="primary" onClick={handleSearch}>查询</Button>
+      <Button onClick={handleReset}>重置</Button>
     </div>
   );
 };

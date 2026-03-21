@@ -3,21 +3,10 @@
  */
 import React from 'react';
 import { Tag } from 'tdesign-react';
-import {
-  TaskStatus,
-  TaskPriority,
-  Stance,
-  AlertSeverity,
-  ConclusionStatus,
-  PortfolioStatus,
-  QuestionStatus,
-} from '@/types';
-
-type StatusType = TaskStatus | TaskPriority | Stance | AlertSeverity | ConclusionStatus | PortfolioStatus | QuestionStatus;
 
 interface StatusTagProps {
-  status: StatusType;
-  type: 'task' | 'priority' | 'stance' | 'alert' | 'conclusion' | 'portfolio' | 'question';
+  status: string;
+  type?: 'task' | 'priority' | 'stance' | 'alert' | 'conclusion' | 'portfolio' | 'question';
 }
 
 const statusConfig: Record<string, { label: string; theme: string }> = {
@@ -39,11 +28,6 @@ const statusConfig: Record<string, { label: string; theme: string }> = {
   cautious: { label: '谨慎', theme: 'warning' },
   bearish: { label: '看空', theme: 'danger' },
 
-  // Alert
-  P0: { label: 'P0', theme: 'danger' },
-  P1: { label: 'P1', theme: 'warning' },
-  P2: { label: 'P2', theme: 'default' },
-
   // Conclusion
   draft: { label: '草稿', theme: 'default' },
   published: { label: '已发布', theme: 'success' },
@@ -57,14 +41,13 @@ const statusConfig: Record<string, { label: string; theme: string }> = {
   // Question
   open: { label: '待回答', theme: 'warning' },
   answered: { label: '已回答', theme: 'success' },
-  closed: { label: '已关闭', theme: 'default' },
 };
 
-const StatusTag: React.FC<StatusTagProps> = ({ status, type }) => {
+const StatusTag: React.FC<StatusTagProps> = ({ status }) => {
   const config = statusConfig[status] || { label: status, theme: 'default' };
 
   return (
-    <Tag theme={config.theme as any} variant="light">
+    <Tag theme={config.theme as 'primary' | 'success' | 'warning' | 'danger' | 'default'} variant="light">
       {config.label}
     </Tag>
   );

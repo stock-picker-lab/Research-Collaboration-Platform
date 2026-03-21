@@ -4,7 +4,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Card, Tag } from 'tdesign-react';
-import { FolderIcon, ChartBarIcon } from 'tdesign-react';
+import { FolderIcon, ChartBarIcon } from 'tdesign-icons-react';
 import { Layout } from '@/components/layout';
 import { StatCard, PageHeader } from '@/components/common';
 
@@ -21,5 +21,12 @@ export const FMDashboard: React.FC = () => {
     </Layout>
   );
 };
+
+// Re-export all page components
+export { ConclusionsPage } from './conclusions';
+export { DocumentsPage } from './documents';
+export { PortfolioPage } from './portfolio';
+export { QuestionsPage } from './questions';
+export { WatchlistPage } from './watchlist';
 
 export default FMDashboard;

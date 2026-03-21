@@ -1,9 +1,11 @@
 /** 系统管理员工作台 */
 'use client';
 import React from 'react';
-import { Card } from 'tdesign-react';
 import { Layout } from '@/components/layout';
 import { StatCard, PageHeader } from '@/components/common';
+import { AuditPage } from './AuditPage';
+import { UsersPage } from './UsersPage';
+import { SettingsPage } from './SettingsPage';
 
 export const AdminDashboard: React.FC = () => (
   <Layout role="admin">
@@ -16,4 +18,5 @@ export const AdminDashboard: React.FC = () => (
     </div>
   </Layout>
 );
+export { AuditPage, UsersPage, SettingsPage };
 export default AdminDashboard;

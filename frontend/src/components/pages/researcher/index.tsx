@@ -148,4 +148,12 @@ export const ResearcherWorkspace: React.FC = () => {
   );
 };
 
+// Re-export all page components
+export { AlertsPage } from './alerts';
+export { CompaniesPage } from './companies';
+export { ConclusionsPage } from './conclusions';
+export { DocumentsPage } from './documents';
+export { QuestionsPage } from './questions';
+export { TasksPage } from './tasks';
+
 export default ResearcherWorkspace;

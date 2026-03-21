@@ -10,7 +10,7 @@ import {
   UserIcon,
   FolderIcon,
   ChartBarIcon,
-  SettingsIcon,
+  SettingIcon,
 } from 'tdesign-icons-react';
 import { UserRole } from '@/types';
 
@@ -53,14 +53,14 @@ const roleMenus: Record<UserRole, MenuItem[]> = {
     { value: 'conclusions', label: '研报结论', icon: <FileIcon />, path: '/leader/conclusions' },
     { value: 'questions', label: '问答协作', icon: <UserIcon />, path: '/leader/questions' },
     { value: 'output', label: '产出统计', icon: <ChartBarIcon />, path: '/leader/output' },
-    { value: 'datasource', label: '数据源', icon: <SettingsIcon />, path: '/leader/datasource' },
-    { value: 'settings', label: '系统设置', icon: <SettingsIcon />, path: '/leader/settings' },
+    { value: 'datasource', label: '数据源', icon: <SettingIcon />, path: '/leader/datasource' },
+    { value: 'settings', label: '系统设置', icon: <SettingIcon />, path: '/leader/settings' },
   ],
   admin: [
     { value: 'dashboard', label: '工作台', icon: <DashboardIcon />, path: '/admin' },
     { value: 'users', label: '用户管理', icon: <UserIcon />, path: '/admin/users' },
-    { value: 'audit', label: '审计日志', icon: <SettingsIcon />, path: '/admin/audit' },
-    { value: 'settings', label: '系统设置', icon: <SettingsIcon />, path: '/admin/settings' },
+    { value: 'audit', label: '审计日志', icon: <SettingIcon />, path: '/admin/audit' },
+    { value: 'settings', label: '系统设置', icon: <SettingIcon />, path: '/admin/settings' },
   ],
 };
 

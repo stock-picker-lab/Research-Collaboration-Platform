@@ -4,7 +4,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Card, Button, Tag } from 'tdesign-react';
-import { AddIcon } from 'tdesign-react';
+import { AddIcon } from 'tdesign-icons-react';
 import { Layout } from '@/components/layout';
 import { PageHeader, StatusTag } from '@/components/common';
 

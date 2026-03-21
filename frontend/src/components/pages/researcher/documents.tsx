@@ -4,7 +4,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Card, Tag } from 'tdesign-react';
-import { FileIcon } from 'tdesign-react';
+import { FileIcon } from 'tdesign-icons-react';
 import { Layout } from '@/components/layout';
 import { PageHeader } from '@/components/common';
 
