@@ -1,149 +1,288 @@
 /**
- * 研究员工作台
+ * 研究员工作台 - 高保真设计
  */
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Card, Badge, Avatar, Empty } from 'tdesign-react';
-import { FileIcon, TaskIcon, ChartBarIcon, TimeIcon } from 'tdesign-icons-react';
 import { Layout } from '@/components/layout';
-import { StatCard, PageHeader, StatusTag } from '@/components/common';
+import { useAuthStore } from '@/stores/authStore';
+import { useRouter } from 'next/navigation';
 
-interface DashboardData {
-  todo_count: number;
-  coverage_count: number;
-  changes_count: number;
-  recent_todos: any[];
-  coverage_companies: any[];
-  recent_alerts: any[];
+interface TodoItem {
+  id: string;
+  title: string;
+  company?: string;
+  type?: string;
+  deadline?: string;
+  priority: 'p0' | 'p1' | 'p2' | 'qa';
+  status?: string;
+}
+
+interface CompanyItem {
+  id: string;
+  name: string;
+  ticker: string;
+  rating: 'buy' | 'hold' | 'sell';
+  newDocs: number;
+  industry: string;
 }
 
 export const ResearcherWorkspace: React.FC = () => {
+  const { user } = useAuthStore();
+  const router = useRouter();
+  const [activeFilter, setActiveFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
-    // 模拟加载数据
-    setTimeout(() => {
-      setData({
-        todo_count: 5,
-        coverage_count: 12,
-        changes_count: 3,
-        recent_todos: [
-          { id: '1', title: '完成宁德时代研究报告', company: { name: '宁德时代' }, type: '深度研究', due_date: '2026-03-25', status: 'in_progress' },
-          { id: '2', title: '跟进光伏行业政策变化', company: { name: '隆基绿能' }, type: '事件点评', due_date: '2026-03-22', status: 'pending' },
-        ],
-        coverage_companies: [
-          { id: '1', name: '宁德时代', rating: '增持', new_docs: 2 },
-          { id: '2', name: '隆基绿能', rating: '中性', new_docs: 1 },
-        ],
-        recent_alerts: [
-          { id: '1', title: '宁德时代季报超预期', content: 'Q4净利润同比增长45%', severity: 'P1', company: { name: '宁德时代' }, created_at: '2小时前' },
-          { id: '2', title: '光伏政策调整', content: '组件出口关税变化', severity: 'P2', company: { name: '隆基绿能' }, created_at: '5小时前' },
-        ],
-      });
-      setLoading(false);
-    }, 500);
+    // 模拟加载
+    setTimeout(() => setLoading(false), 300);
   }, []);
+
+  // 模拟数据
+  const todoItems: TodoItem[] = [
+    {
+      id: '1',
+      title: '贵州茅台Q4财报点评',
+      company: '贵州茅台',
+      type: '财报点评',
+      deadline: '今日 18:00',
+      priority: 'p0',
+    },
+    {
+      id: '2',
+      title: '宁德时代新产品发布会纪要',
+      company: '宁德时代',
+      type: '事件点评',
+      deadline: '今日 18:00',
+      priority: 'p1',
+    },
+    {
+      id: '3',
+      title: '比亚迪同行对比更新',
+      company: '比亚迪',
+      type: '同行对比',
+      deadline: '明日',
+      priority: 'p2',
+    },
+    {
+      id: '4',
+      title: '回复李经理关于隆基股份的提问',
+      company: '隆基绿能',
+      type: '问答',
+      priority: 'qa',
+    },
+  ];
+
+  const coverageCompanies: CompanyItem[] = [
+    { id: '1', name: '贵州茅台', ticker: '600519', rating: 'buy', newDocs: 3, industry: '食品饮料' },
+    { id: '2', name: '宁德时代', ticker: '300750', rating: 'buy', newDocs: 5, industry: '新能源' },
+    { id: '3', name: '比亚迪', ticker: '002594', rating: 'hold', newDocs: 2, industry: '汽车' },
+    { id: '4', name: '隆基绿能', ticker: '601012', rating: 'buy', newDocs: 1, industry: '光伏' },
+    { id: '5', name: '药明康德', ticker: '603259', rating: 'hold', newDocs: 0, industry: '医药' },
+  ];
+
+  const quickActions = [
+    { icon: '📈', name: '个股深度研究', desc: '启动标准研究流程' },
+    { icon: '📊', name: '财报快速点评', desc: '使用AI辅助分析' },
+    { icon: '📰', name: '事件点评', desc: '快速响应突发事件' },
+    { icon: '⚖️', name: '同行对比', desc: '横向对比多家公司' },
+  ];
+
+  const getPriorityClass = (priority: string) => {
+    switch (priority) {
+      case 'p0': return 'tag tag-p0';
+      case 'p1': return 'tag tag-p1';
+      case 'p2': return 'tag tag-p2';
+      case 'qa': return 'tag tag-blue';
+      default: return 'tag tag-gray';
+    }
+  };
+
+  const getPriorityLabel = (priority: string) => {
+    switch (priority) {
+      case 'p0': return 'P0 紧急';
+      case 'p1': return 'P1 重要';
+      case 'p2': return 'P2 常规';
+      case 'qa': return '问答';
+      default: return priority;
+    }
+  };
+
+  const getBorderStyle = (priority: string) => {
+    switch (priority) {
+      case 'p0': return 'border-left: 4px solid var(--red);';
+      case 'p1': return 'border-left: 4px solid var(--orange);';
+      case 'p2': return 'border-left: 4px solid var(--green);';
+      default: return '';
+    }
+  };
+
+  const getRatingClass = (rating: string) => {
+    switch (rating) {
+      case 'buy': return 'badge-rating badge-buy';
+      case 'hold': return 'badge-rating badge-hold';
+      case 'sell': return 'badge-rating badge-sell';
+      default: return 'badge-rating';
+    }
+  };
+
+  const getRatingLabel = (rating: string) => {
+    switch (rating) {
+      case 'buy': return '买入';
+      case 'hold': return '持有';
+      case 'sell': return '卖出';
+      default: return rating;
+    }
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return '早安';
+    if (hour < 18) return '下午好';
+    return '晚上好';
+  };
+
+  const filters = ['全部', '紧急', '跟进'];
+
+  const filteredTodos = todoItems.filter((item) => {
+    if (activeFilter === '全部') return true;
+    if (activeFilter === '紧急') return item.priority === 'p0' || item.priority === 'p1';
+    if (activeFilter === '跟进') return item.priority === 'p2' || item.priority === 'qa';
+    return true;
+  });
+
+  if (loading) {
+    return (
+      <Layout role="researcher">
+        <div className="page-content flex items-center justify-center" style={{ minHeight: '400px' }}>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout role="researcher">
-      <PageHeader
-        title="工作台"
-        subtitle="欢迎回来！查看您的工作任务和关注公司的最新动态"
-      />
+      <div className="page-content">
+        {/* 页面标题区 */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <div>
+            <h1 className="page-title">{getGreeting()}，{user?.name?.split('')[0] || '研究员'} 👋</h1>
+            <p className="page-subtitle">今日待办 {todoItems.length} 项 · 覆盖池 {coverageCompanies.length} 家公司 · 新增变化 12 条</p>
+          </div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button className="btn btn-outline">🎯 专注模式</button>
+            <button className="btn btn-primary">+ 新建研究</button>
+          </div>
+        </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 24 }}>
-        <StatCard
-          title="待完成任务"
-          value={data?.todo_count || 0}
-          trend={{ value: 12, isUp: true }}
-          icon={<TaskIcon />}
-          color="warning"
-        />
-        <StatCard
-          title="覆盖公司"
-          value={data?.coverage_count || 0}
-          icon={<FileIcon />}
-          color="primary"
-        />
-        <StatCard
-          title="今日变化"
-          value={data?.changes_count || 0}
-          trend={{ value: 5, isUp: false }}
-          icon={<ChartBarIcon />}
-          color="success"
-        />
-        <StatCard
-          title="新预警"
-          value={data?.recent_alerts?.length || 0}
-          icon={<TimeIcon />}
-          color="danger"
-        />
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: 24 }}>
-        <Card title="待办任务" bordered>
-          {data?.recent_todos && data.recent_todos.length > 0 ? (
-            data.recent_todos.map((task) => (
-              <div key={task.id} style={{ padding: '12px 0', borderBottom: '1px solid #eee' }}>
-                <div style={{ fontWeight: 500 }}>{task.title}</div>
-                <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
-                  {task.company?.name} · {task.type} · {task.due_date}
-                </div>
-                <StatusTag status={task.status} type="task" />
+        {/* 双列网格：待办 + 覆盖池 */}
+        <div className="grid-2">
+          {/* 左侧：今日待办 */}
+          <div className="card">
+            <div className="card-header">
+              <span className="card-title">📝 今日待办</span>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {filters.map((f) => (
+                  <span
+                    key={f}
+                    className={`filter-item ${activeFilter === f.toLowerCase() || (activeFilter === 'all' && f === '全部') ? 'active' : ''}`}
+                    onClick={() => setActiveFilter(f === '全部' ? 'all' : f === '紧急' ? 'urgent' : 'follow')}
+                  >
+                    {f}
+                  </span>
+                ))}
               </div>
-            ))
-          ) : (
-            <Empty description="暂无待办任务" />
-          )}
-        </Card>
+            </div>
 
-        <Card title="关注公司动态" bordered>
-          {data?.coverage_companies && data.coverage_companies.length > 0 ? (
-            data.coverage_companies.map((company: any) => (
-              <div key={company.id} style={{ display: 'flex', alignItems: 'center', padding: '8px 0' }}>
-                <Avatar size="small">{company.name?.charAt(0)}</Avatar>
-                <div style={{ marginLeft: 12, flex: 1 }}>
-                  <div style={{ fontWeight: 500 }}>{company.name}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <StatusTag status={company.rating} type="stance" />
-                    {company.new_docs > 0 && <Badge count={company.new_docs} />}
+            {filteredTodos.map((item) => (
+              <div key={item.id} className="list-item" style={{ ...{ borderLeft: 'none' }, ...(getBorderStyle(item.priority) as any) }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <span className={getPriorityClass(item.priority)}>{getPriorityLabel(item.priority)}</span>
+                    <strong style={{ color: 'var(--text)', fontWeight: 600 }}>{item.title}</strong>
+                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                    {item.deadline ? `${item.company} · ${item.type} · ${item.deadline}` : `${item.company} · ${item.type}`}
                   </div>
                 </div>
+                <button
+                  className="btn btn-sm btn-primary"
+                  onClick={() => {
+                    if (item.priority === 'qa') {
+                      router.push('/researcher/questions');
+                    } else {
+                      router.push('/researcher/tasks');
+                    }
+                  }}
+                >
+                  {item.priority === 'qa' ? '回复' : '查看'}
+                </button>
               </div>
-            ))
-          ) : (
-            <Empty description="暂无关注公司" />
-          )}
-        </Card>
-      </div>
+            ))}
+          </div>
 
-      <Card title="最新预警" bordered style={{ marginTop: 24 }}>
-        {data?.recent_alerts && data.recent_alerts.length > 0 ? (
-          data.recent_alerts.map((alert) => (
-            <div key={alert.id} style={{ display: 'flex', alignItems: 'flex-start', padding: '12px 0', borderBottom: '1px solid #eee' }}>
-              <div style={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                backgroundColor: alert.severity === 'P0' ? 'var(--td-error-color)' : alert.severity === 'P1' ? 'var(--td-warning-color)' : 'var(--td-brand-color)',
-                marginRight: 12,
-                marginTop: 6,
-              }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 500 }}>{alert.title}</div>
-                <div style={{ fontSize: 13, color: '#666', marginTop: 2 }}>{alert.content}</div>
-                <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
-                  {alert.company?.name} · {alert.created_at}
-                </div>
-              </div>
-              <StatusTag status={alert.severity} type="alert" />
+          {/* 右侧：覆盖池概览 */}
+          <div className="card">
+            <div className="card-header">
+              <span className="card-title">📦 覆盖池概览</span>
+              <button className="btn btn-sm btn-outline" onClick={() => router.push('/researcher/companies')}>
+                管理覆盖池
+              </button>
             </div>
-          ))
-        ) : (
-          <Empty description="暂无预警" />
-        )}
-      </Card>
+
+            <div className="grid-3">
+              {coverageCompanies.map((company) => (
+                <div
+                  key={company.id}
+                  className="company-card"
+                  onClick={() => router.push(`/researcher/companies/${company.id}`)}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 8 }}>
+                    <strong className="company-name">{company.name}</strong>
+                    <span className={getRatingClass(company.rating)}>{getRatingLabel(company.rating)}</span>
+                  </div>
+                  <div className="company-ticker">{company.industry} · {company.ticker}</div>
+                  <div className="company-updates">
+                    {company.newDocs > 0 ? (
+                      <>
+                        <span style={{ color: 'var(--gold)', fontWeight: 600 }}>+{company.newDocs}</span>
+                        <span>新增资料</span>
+                      </>
+                    ) : (
+                      <span style={{ color: 'var(--text-secondary)' }}>暂无更新</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {/* 添加公司卡片 */}
+              <div
+                className="company-card"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px dashed var(--border)', background: 'transparent', color: 'var(--text-secondary)' }}
+                onClick={() => router.push('/researcher/companies')}
+              >
+                + 添加公司
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 快捷操作 */}
+        <div className="card">
+          <div className="card-header">
+            <span className="card-title">⚡ 快捷操作</span>
+          </div>
+          <div className="grid-4">
+            {quickActions.map((action, idx) => (
+              <div key={idx} className="template-card">
+                <div className="template-icon">{action.icon}</div>
+                <div className="template-name">{action.name}</div>
+                <div className="template-desc">{action.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </Layout>
   );
 };

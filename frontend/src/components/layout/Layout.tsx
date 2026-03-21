@@ -1,24 +1,23 @@
 /**
- * 页面布局组件
+ * 页面布局组件 - 高保真设计
  */
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
-import { UserRole } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
+import { useRouter } from 'next/navigation';
 
 interface LayoutProps {
   children: React.ReactNode;
-  role: UserRole;
+  role?: string;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, role }) => {
-  const { user, logout } = useAuthStore();
-  const [collapsed, setCollapsed] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuthStore();
+  const router = useRouter();
 
   useEffect(() => {
-    // 如果没有用户数据，尝试从 localStorage 恢复
+    // 检查用户是否已登录
     if (!user) {
       const userStr = localStorage.getItem('user');
       if (userStr) {
@@ -27,23 +26,15 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
           useAuthStore.getState().setAuth(parsedUser, localStorage.getItem('token') || '');
         } catch (e) {
           console.error('Failed to parse user:', e);
+          router.push('/login');
         }
+      } else {
+        router.push('/login');
       }
     }
-    setLoading(false);
-  }, [user]);
+  }, [user, router]);
 
-  const handleSearch = (keyword: string) => {
-    console.log('Search:', keyword);
-    // 实现搜索逻辑
-  };
-
-  const handleLogout = () => {
-    logout();
-    window.location.href = '/login';
-  };
-
-  if (loading) {
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -51,18 +42,15 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
     );
   }
 
-  if (!user) {
-    window.location.href = '/login';
-    return null;
-  }
+  const currentRole = role || user.role || 'researcher';
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header user={user} onSearch={handleSearch} onLogout={handleLogout} />
-      <div className="flex">
-        <Sidebar role={role} collapsed={collapsed} onCollapse={setCollapsed} />
-        <main className="flex-1 min-h-[calc(100vh-64px)]">
-          <div className="p-6">{children}</div>
+    <div className="app-container">
+      <Sidebar role={currentRole} />
+      <div className="main-wrapper">
+        <Header />
+        <main className="main-content">
+          {children}
         </main>
       </div>
     </div>

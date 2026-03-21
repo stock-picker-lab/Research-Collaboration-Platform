@@ -1,101 +1,117 @@
 /**
- * 侧边导航栏
+ * 侧边导航栏 - 高保真设计
  */
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import {
-  DashboardIcon,
-  FileIcon,
-  TaskIcon,
-  UserIcon,
-  FolderIcon,
-  ChartBarIcon,
-  SettingIcon,
-} from 'tdesign-icons-react';
-import { UserRole } from '@/types';
 
-interface SidebarProps {
-  role: UserRole;
-  collapsed?: boolean;
-  onCollapse?: (collapsed: boolean) => void;
-}
-
-interface MenuItem {
-  value: string;
+interface NavItem {
+  id: string;
   label: string;
-  icon: React.ReactNode;
+  icon: string;
   path: string;
 }
 
-const roleMenus: Record<UserRole, MenuItem[]> = {
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const navSections: Record<string, NavSection[]> = {
   researcher: [
-    { value: 'dashboard', label: '工作台', icon: <DashboardIcon />, path: '/researcher' },
-    { value: 'documents', label: '文档库', icon: <FileIcon />, path: '/researcher/documents' },
-    { value: 'tasks', label: '研究任务', icon: <TaskIcon />, path: '/researcher/tasks' },
-    { value: 'conclusions', label: '研报结论', icon: <FileIcon />, path: '/researcher/conclusions' },
-    { value: 'companies', label: '关注公司', icon: <FolderIcon />, path: '/researcher/companies' },
-    { value: 'questions', label: '问答协作', icon: <UserIcon />, path: '/researcher/questions' },
-    { value: 'alerts', label: '我的预警', icon: <ChartBarIcon />, path: '/researcher/alerts' },
+    {
+      title: '🔬 研究员侧',
+      items: [
+        { id: 'home', label: '首页工作台', icon: '🏠', path: '/researcher' },
+        { id: 'companies', label: '关注公司', icon: '🏢', path: '/researcher/companies' },
+        { id: 'documents', label: '文档库', icon: '📄', path: '/researcher/documents' },
+        { id: 'tasks', label: '研究任务', icon: '📋', path: '/researcher/tasks' },
+        { id: 'conclusions', label: '研报结论', icon: '🎯', path: '/researcher/conclusions' },
+        { id: 'questions', label: '问答协作', icon: '💬', path: '/researcher/questions' },
+        { id: 'alerts', label: '我的预警', icon: '🔔', path: '/researcher/alerts' },
+      ],
+    },
   ],
   pm: [
-    { value: 'dashboard', label: '工作台', icon: <DashboardIcon />, path: '/fm' },
-    { value: 'portfolio', label: '持仓管理', icon: <FolderIcon />, path: '/fm/portfolio' },
-    { value: 'watchlist', label: '观察池', icon: <ChartBarIcon />, path: '/fm/watchlist' },
-    { value: 'documents', label: '文档库', icon: <FileIcon />, path: '/fm/documents' },
-    { value: 'conclusions', label: '研报结论', icon: <FileIcon />, path: '/fm/conclusions' },
-    { value: 'questions', label: '问答协作', icon: <UserIcon />, path: '/fm/questions' },
+    {
+      title: '💼 基金经理侧',
+      items: [
+        { id: 'dashboard', label: '决策驾驶舱', icon: '🎛️', path: '/fm' },
+        { id: 'portfolio', label: '持仓管理', icon: '📦', path: '/fm/portfolio' },
+        { id: 'watchlist', label: '观察池', icon: '👁️', path: '/fm/watchlist' },
+        { id: 'documents', label: '文档库', icon: '📄', path: '/fm/documents' },
+        { id: 'conclusions', label: '研报结论', icon: '📝', path: '/fm/conclusions' },
+        { id: 'questions', label: '问答追踪', icon: '❓', path: '/fm/questions' },
+      ],
+    },
   ],
   leader: [
-    { value: 'dashboard', label: '工作台', icon: <DashboardIcon />, path: '/leader' },
-    { value: 'tasks', label: '任务管理', icon: <TaskIcon />, path: '/leader/tasks' },
-    { value: 'team', label: '团队管理', icon: <UserIcon />, path: '/leader/team' },
-    { value: 'documents', label: '文档库', icon: <FileIcon />, path: '/leader/documents' },
-    { value: 'conclusions', label: '研报结论', icon: <FileIcon />, path: '/leader/conclusions' },
-    { value: 'questions', label: '问答协作', icon: <UserIcon />, path: '/leader/questions' },
-    { value: 'output', label: '产出统计', icon: <ChartBarIcon />, path: '/leader/output' },
-    { value: 'datasource', label: '数据源', icon: <SettingIcon />, path: '/leader/datasource' },
-    { value: 'settings', label: '系统设置', icon: <SettingIcon />, path: '/leader/settings' },
+    {
+      title: '👔 管理层侧',
+      items: [
+        { id: 'dashboard', label: '团队看板', icon: '📊', path: '/leader' },
+        { id: 'tasks', label: '任务管理', icon: '✅', path: '/leader/tasks' },
+        { id: 'team', label: '团队管理', icon: '👥', path: '/leader/team' },
+        { id: 'documents', label: '文档库', icon: '📄', path: '/leader/documents' },
+        { id: 'conclusions', label: '研报结论', icon: '🎯', path: '/leader/conclusions' },
+        { id: 'questions', label: '问答协作', icon: '💬', path: '/leader/questions' },
+        { id: 'output', label: '产出统计', icon: '📈', path: '/leader/output' },
+        { id: 'coverage', label: '覆盖情况', icon: '🗺️', path: '/leader/coverage' },
+      ],
+    },
   ],
   admin: [
-    { value: 'dashboard', label: '工作台', icon: <DashboardIcon />, path: '/admin' },
-    { value: 'users', label: '用户管理', icon: <UserIcon />, path: '/admin/users' },
-    { value: 'audit', label: '审计日志', icon: <SettingIcon />, path: '/admin/audit' },
-    { value: 'settings', label: '系统设置', icon: <SettingIcon />, path: '/admin/settings' },
+    {
+      title: '⚙️ 系统管理侧',
+      items: [
+        { id: 'dashboard', label: '管理首页', icon: '🏠', path: '/admin' },
+        { id: 'users', label: '用户权限', icon: '👥', path: '/admin/users' },
+        { id: 'audit', label: '审计日志', icon: '📜', path: '/admin/audit' },
+        { id: 'datasource', label: '数据源', icon: '🔌', path: '/admin/datasource' },
+        { id: 'settings', label: '系统设置', icon: '⚙️', path: '/admin/settings' },
+      ],
+    },
   ],
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ role, collapsed = false }) => {
+interface SidebarProps {
+  role: string;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ role }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const sections = navSections[role] || [];
 
-  const menus = roleMenus[role] || [];
-
-  const handleNavChange = (value: string) => {
-    const menu = menus.find((m) => m.value === value);
-    if (menu) {
-      router.push(menu.path);
+  const isActive = (path: string) => {
+    if (path === `/${role}`) {
+      return pathname === path;
     }
+    return pathname.startsWith(path);
   };
 
-  // 获取当前选中的值
-  const currentPath = pathname;
-  const selectedValue = menus.find((m) => currentPath.startsWith(m.path))?.value || 'dashboard';
-
   return (
-    <aside className={`min-h-[calc(100vh-64px)] bg-white border-r border-gray-200 transition-all duration-300 ${collapsed ? 'w-16' : 'w-56'}`}>
-      <nav className="py-4">
-        {menus.map((menu) => (
-          <div
-            key={menu.value}
-            className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
-              selectedValue === menu.value
-                ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-            onClick={() => handleNavChange(menu.value)}
-          >
-            <span className="text-lg">{menu.icon}</span>
-            {!collapsed && <span className="text-sm font-medium">{menu.label}</span>}
+    <aside className="sidebar">
+      {/* Logo区域 */}
+      <div className="sidebar-header">
+        <h1>📊 投研协作平台</h1>
+        <p>Investment Research Platform</p>
+      </div>
+
+      {/* 导航区域 */}
+      <nav>
+        {sections.map((section, idx) => (
+          <div key={idx} className="nav-section">
+            <div className="nav-section-title">{section.title}</div>
+            {section.items.map((item) => (
+              <div
+                key={item.id}
+                className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+                onClick={() => router.push(item.path)}
+              >
+                <span className="nav-icon">{item.icon}</span>
+                <span>{item.label}</span>
+              </div>
+            ))}
           </div>
         ))}
       </nav>

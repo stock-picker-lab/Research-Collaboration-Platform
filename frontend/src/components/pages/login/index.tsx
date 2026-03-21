@@ -1,5 +1,5 @@
 /**
- * 登录页面
+ * 登录页面 - 高保真设计
  */
 'use client';
 import React, { useState } from 'react';
@@ -76,7 +76,7 @@ export const LoginPage: React.FC = () => {
       // Fallback: demo mode if API fails
       const demoUsername = username.toLowerCase();
       if (password === 'demo123') {
-        const user = { ...demoUsers[selectedRole], username: demoUsername, name: username };
+        const user = { ...demoUsers[selectedRole], username: username.toLowerCase(), name: username };
         const token = 'demo-token-' + selectedRole;
         setAuth(user, token);
         router.push(`/${selectedRole}`);
@@ -87,7 +87,7 @@ export const LoginPage: React.FC = () => {
     } catch {
       // Network error - use demo mode
       if (password === 'demo123') {
-        const user = { ...demoUsers[selectedRole], username: demoUsername, name: username };
+        const user = { ...demoUsers[selectedRole], username: username.toLowerCase(), name: username };
         const token = 'demo-token-' + selectedRole;
         setAuth(user, token);
         router.push(`/${selectedRole}`);
@@ -100,98 +100,238 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-      {/* Animated background */}
+    <div className="min-h-screen relative overflow-hidden login-bg">
+      {/* Animated background circles */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '2s' }} />
+        <div
+          style={{
+            position: 'absolute',
+            top: '-20%',
+            right: '-10%',
+            width: '500px',
+            height: '500px',
+            background: 'radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%)',
+            borderRadius: '50%',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-20%',
+            left: '-10%',
+            width: '600px',
+            height: '600px',
+            background: 'radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%)',
+            borderRadius: '50%',
+          }}
+        />
       </div>
 
-      {/* Grid overlay */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40" />
+      {/* Grid pattern */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+        }}
+      />
 
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-2xl mb-6">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '80px',
+                height: '80px',
+                background: 'linear-gradient(135deg, #D4AF37 0%, #F0D875 50%, #D4AF37 100%)',
+                borderRadius: '20px',
+                marginBottom: 24,
+                boxShadow: '0 8px 32px rgba(212, 175, 55, 0.3)',
+              }}
+            >
+              <span style={{ fontSize: '40px' }}>📊</span>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">投研协作平台</h1>
-            <p className="text-blue-300 text-sm tracking-wider">Investment Research Platform</p>
+            <h1
+              style={{
+                fontSize: '32px',
+                fontWeight: 700,
+                color: 'white',
+                marginBottom: 8,
+                letterSpacing: '-0.5px',
+              }}
+            >
+              投研协作平台
+            </h1>
+            <p
+              style={{
+                color: 'rgba(212, 175, 55, 0.9)',
+                fontSize: '14px',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+              }}
+            >
+              Investment Research Platform
+            </p>
           </div>
 
-          {/* Card */}
-          <Card className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl">
-            <div className="p-6 space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-blue-100 mb-2">用户名</label>
+          {/* Login card */}
+          <Card
+            style={{
+              backdropFilter: 'blur(20px)',
+              background: 'rgba(255, 255, 255, 0.95)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '16px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            }}
+          >
+            <div style={{ padding: '32px 24px' }}>
+              {/* Username */}
+              <div style={{ marginBottom: 20 }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#1A365D',
+                    marginBottom: 8,
+                  }}
+                >
+                  用户名
+                </label>
                 <Input
                   placeholder="请输入用户名"
                   size="large"
                   value={username}
                   onChange={(value) => setUsername(value as string)}
-                  prefixIcon={
-                    <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  }
-                  className="[&.t-is-focused]:!bg-white/20 ![&_.t-input]:!bg-white/10 ![&_.t-input]:!border-white/30 ![&_.t-input]:!text-white ![&_.t-input__inner]::!text-white"
+                  style={{
+                    '--td-bg-color': '#F7FAFC',
+                    '--td-border-color': '#E2E8F0',
+                    '--td-text-color': '#2D3748',
+                  } as any}
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-blue-100 mb-2">密码</label>
+              {/* Password */}
+              <div style={{ marginBottom: 20 }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#1A365D',
+                    marginBottom: 8,
+                  }}
+                >
+                  密码
+                </label>
                 <Input
                   placeholder="请输入密码"
                   size="large"
                   type="password"
                   value={password}
                   onChange={(value) => setPassword(value as string)}
-                  onEnterKeyDown={() => handleSubmit()}
-                  prefixIcon={
-                    <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  }
-                  className="[&.t-is-focused]:!bg-white/20 ![&_.t-input]:!bg-white/10 ![&_.t-input]:!border-white/30 ![&_.t-input]:!text-white ![&_.t-input__inner]::!text-white"
+                  onKeydown={(e: any) => {
+                    if (e.key === 'Enter') handleSubmit();
+                  }}
+                  style={{
+                    '--td-bg-color': '#F7FAFC',
+                    '--td-border-color': '#E2E8F0',
+                    '--td-text-color': '#2D3748',
+                  } as any}
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-blue-100 mb-2">选择角色（演示模式）</label>
+              {/* Role selector */}
+              <div style={{ marginBottom: 20 }}>
+                <label
+                  style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: '#1A365D',
+                    marginBottom: 8,
+                  }}
+                >
+                  选择角色（演示模式）
+                </label>
                 <Select
                   value={selectedRole}
                   onChange={(value) => setSelectedRole(value as string)}
                   options={roleOptions}
                   size="large"
-                  className="[&_.t-select__wrap]:!bg-white/10 [&_.t-select__wrap]:!border-white/30 [&_.t-input]:!bg-white/10 [&_.t-input]:!border-white/30"
+                  style={{
+                    '--td-bg-color': '#F7FAFC',
+                    '--td-border-color': '#E2E8F0',
+                  } as any}
                 />
               </div>
 
+              {/* Error message */}
               {error && (
-                <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-200 text-sm">
+                <div
+                  style={{
+                    padding: '12px',
+                    background: '#FEE2E2',
+                    border: '1px solid #FECACA',
+                    borderRadius: '8px',
+                    color: '#991B1B',
+                    fontSize: '14px',
+                    marginBottom: 16,
+                  }}
+                >
                   {error}
                 </div>
               )}
 
-              <Button
-                theme="primary"
-                block
-                size="large"
-                loading={loading}
+              {/* Submit button */}
+              <button
                 onClick={handleSubmit}
-                className="!bg-gradient-to-r !from-blue-600 !to-indigo-600 !border-0 !text-white hover:!from-blue-500 hover:!to-indigo-500 h-12 text-base font-medium"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  height: '48px',
+                  background: 'linear-gradient(135deg, #1A365D 0%, #2C5282 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  opacity: loading ? 0.7 : 1,
+                }}
               >
-                登 录
-              </Button>
+                {loading ? (
+                  <span>登录中...</span>
+                ) : (
+                  <>
+                    <span>登 录</span>
+                    <span style={{ fontSize: '18px' }}>→</span>
+                  </>
+                )}
+              </button>
             </div>
 
-            <div className="px-6 py-4 border-t border-white/10 text-center">
-              <p className="text-blue-200/60 text-xs space-y-1">
+            {/* Footer */}
+            <div
+              style={{
+                padding: '16px 24px',
+                borderTop: '1px solid #E2E8F0',
+                textAlign: 'center',
+                background: '#F7FAFC',
+                borderRadius: '0 0 16px 16px',
+              }}
+            >
+              <p style={{ color: '#718096', fontSize: '12px', margin: 0 }}>
                 <span>演示模式密码: demo123</span>
                 <br />
                 <span>真实账号: admin / admin123</span>
@@ -199,8 +339,16 @@ export const LoginPage: React.FC = () => {
             </div>
           </Card>
 
-          <p className="text-center text-blue-200/40 text-xs mt-6">
-            © 2024 投研协作平台
+          {/* Copyright */}
+          <p
+            style={{
+              textAlign: 'center',
+              color: 'rgba(255, 255, 255, 0.4)',
+              fontSize: '12px',
+              marginTop: 24,
+            }}
+          >
+            © 2024 投研协作平台 · Investment Research Platform
           </p>
         </div>
       </div>
