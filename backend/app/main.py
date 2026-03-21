@@ -12,6 +12,8 @@ from app.api import (
     auth_router, companies_router, documents_router,
     task_router, conclusion_router, assumption_router, question_router,
     copilot_router, alert_router, workbench_router, dashboard_router, management_router,
+    portfolios_router, watchlist_router, templates_router,
+    admin_router, user_mgmt_router, audit_router, datasource_router,
 )
 
 
@@ -63,6 +65,13 @@ app.include_router(alert_router, prefix=API_PREFIX)
 app.include_router(workbench_router, prefix=API_PREFIX)
 app.include_router(dashboard_router, prefix=API_PREFIX)
 app.include_router(management_router, prefix=API_PREFIX)
+app.include_router(portfolios_router, prefix=API_PREFIX)
+app.include_router(watchlist_router, prefix=API_PREFIX)
+app.include_router(templates_router, prefix=API_PREFIX)
+app.include_router(admin_router, prefix=API_PREFIX)
+app.include_router(user_mgmt_router, prefix=API_PREFIX)
+app.include_router(audit_router, prefix=API_PREFIX)
+app.include_router(datasource_router, prefix=API_PREFIX)
 
 
 # ---------- 健康检查 ----------

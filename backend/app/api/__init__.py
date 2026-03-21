@@ -5,3 +5,6 @@ from app.api.research import task_router, conclusion_router, assumption_router, 
 from app.api.copilot_and_dashboard import (
     copilot_router, alert_router, workbench_router, dashboard_router, management_router,
 )
+from app.api.portfolios import router as portfolios_router, watchlist_router
+from app.api.templates import router as templates_router
+from app.api.admin_routes import router as admin_router, user_mgmt_router, audit_router, datasource_router

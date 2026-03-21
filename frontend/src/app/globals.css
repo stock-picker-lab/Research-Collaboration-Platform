@@ -38,7 +38,7 @@ body {
 .confidence-medium { color: #d97706; }
 .confidence-low { color: #dc2626; }
 
-/* 预警级别 */
-.severity-p0 { @apply bg-red-100 text-red-800 border-red-300; }
-.severity-p1 { @apply bg-orange-100 text-orange-800 border-orange-300; }
-.severity-p2 { @apply bg-blue-100 text-blue-800 border-blue-300; }
+/* 预警级别 - 使用普通 CSS 类代替 @apply */
+.severity-p0 { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; }
+.severity-p1 { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+.severity-p2 { background-color: #dbeafe; color: #1e40af; border-color: #bfdbfe; }

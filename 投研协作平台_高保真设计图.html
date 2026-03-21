@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投研协作平台 - 高保真设计图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1A365D;
+            --gold: #D4AF37;
+            --light-gray: #F7FAFC;
+            --red: #E53E3E;
+            --orange: #ED8936;
+            --green: #38A169;
+            --text: #2D3748;
+            --border: #E2E8F0;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: var(--light-gray); }
+        
+        /* 主布局 */
+        .app-container { display: flex; height: 100vh; }
+        
+        /* 左侧导航 */
+        .sidebar { width: 280px; background: var(--primary); color: white; overflow-y: auto; flex-shrink: 0; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header h1 { font-size: 18px; color: var(--gold); }
+        .sidebar-header p { font-size: 12px; opacity: 0.7; margin-top: 5px; }
+        .nav-section { padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .nav-section-title { padding: 10px 20px; font-size: 12px; text-transform: uppercase; opacity: 0.6; letter-spacing: 1px; }
+        .nav-item { padding: 12px 20px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .nav-item:hover { background: rgba(255,255,255,0.1); }
+        .nav-item.active { background: var(--gold); color: var(--primary); font-weight: 600; }
+        .nav-item .icon { width: 20px; text-align: center; }
+        
+        /* 主内容区 */
+        .main-content { flex: 1; overflow-y: auto; background: var(--light-gray); }
+        
+        /* 页面容器 */
+        .page { display: none; min-height: 100%; }
+        .page.active { display: block; }
+        
+        /* 通用顶部导航 */
+        .top-nav { height: 60px; background: white; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 100; }
+        .top-nav-left { display: flex; align-items: center; gap: 20px; }
+        .breadcrumb { color: var(--text); font-size: 14px; }
+        .breadcrumb span { color: var(--primary); font-weight: 600; }
+        .search-box { display: flex; align-items: center; background: var(--light-gray); border-radius: 8px; padding: 8px 16px; width: 300px; }
+        .search-box input { border: none; background: none; outline: none; width: 100%; font-size: 14px; }
+        .top-nav-right { display: flex; align-items: center; gap: 20px; }
+        .notification { position: relative; cursor: pointer; font-size: 20px; }
+        .notification .badge { position: absolute; top: -5px; right: -5px; background: var(--red); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
+        .user-avatar { width: 36px; height: 36px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; cursor: pointer; }
+        
+        /* 页面内容区 */
+        .page-content { padding: 24px; }
+        .page-title { font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+        .page-subtitle { font-size: 14px; color: #718096; margin-bottom: 24px; }
+        
+        /* 卡片 */
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+        .card-title { font-size: 16px; font-weight: 600; color: var(--primary); }
+        
+        /* 网格布局 */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        
+        /* 按钮 */
+        .btn { padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #2C5282; }
+        .btn-gold { background: var(--gold); color: var(--primary); }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        
+        /* 标签 */
+        .tag { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .tag-p0 { background: #FED7D7; color: var(--red); }
+        .tag-p1 { background: #FEEBC8; color: var(--orange); }
+        .tag-p2 { background: #C6F6D5; color: var(--green); }
+        .tag-blue { background: #BEE3F8; color: #2B6CB0; }
+        .tag-gray { background: #E2E8F0; color: #4A5568; }
+        
+        /* 徽章 */
+        .badge-rating { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+        .badge-buy { background: var(--green); color: white; }
+        .badge-hold { background: var(--orange); color: white; }
+        .badge-sell { background: var(--red); color: white; }
+        
+        /* 列表项 */
+        .list-item { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border); gap: 16px; }
+        .list-item:last-child { border-bottom: none; }
+        .list-item:hover { background: var(--light-gray); }
+        
+        /* 表格 */
+        .table { width: 100%; border-collapse: collapse; }
+        .table th, .table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        .table th { background: var(--light-gray); font-weight: 600; color: var(--primary); font-size: 13px; }
+        .table tr:hover { background: #F8FAFC; }
+        
+        /* 统计卡片 */
+        .stat-card { text-align: center; padding: 24px; }
+        .stat-value { font-size: 32px; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 14px; color: #718096; margin-top: 8px; }
+        .stat-change { font-size: 13px; margin-top: 8px; }
+        .stat-change.up { color: var(--green); }
+        .stat-change.down { color: var(--red); }
+        
+        /* 时间线 */
+        .timeline { position: relative; padding-left: 30px; }
+        .timeline::before { content: ""; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+        .timeline-item { position: relative; padding: 16px 0; }
+        .timeline-item::before { content: ""; position: absolute; left: -24px; top: 20px; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); border: 2px solid white; box-shadow: 0 0 0 2px var(--primary); }
+        .timeline-item.highlight::before { background: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+        
+        /* 进度条 */
+        .progress { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.3s; }
+        .progress-bar.gold { background: var(--gold); }
+        
+        /* 热力图 */
+        .heatmap { display: grid; gap: 4px; }
+        .heatmap-cell { aspect-ratio: 1; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white; font-weight: 500; }
+        
+        /* 看板 */
+        .kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .kanban-column { background: var(--light-gray); border-radius: 12px; padding: 16px; min-height: 400px; }
+        .kanban-header { font-weight: 600; color: var(--primary); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .kanban-count { background: var(--primary); color: white; padding: 2px 10px; border-radius: 12px; font-size: 12px; }
+        .kanban-card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; }
+        .kanban-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        
+        /* 对话框 */
+        .chat-container { display: flex; flex-direction: column; height: 500px; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; background: var(--light-gray); border-radius: 8px; }
+        .chat-message { margin-bottom: 16px; }
+        .chat-message.user { text-align: right; }
+        .chat-bubble { display: inline-block; padding: 12px 16px; border-radius: 12px; max-width: 70%; text-align: left; }
+        .chat-message.ai .chat-bubble { background: white; }
+        .chat-message.user .chat-bubble { background: var(--primary); color: white; }
+        .chat-input { display: flex; gap: 12px; margin-top: 16px; }
+        .chat-input input { flex: 1; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; outline: none; }
+        
+        /* 置信度指示器 */
+        .confidence { display: inline-flex; align-items: center; gap: 6px; }
+        .confidence-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .confidence-high { background: var(--green); }
+        .confidence-medium { background: var(--orange); }
+        .confidence-low { background: var(--red); }
+        
+        /* 分栏布局 */
+        .split-layout { display: grid; grid-template-columns: 40% 60%; gap: 20px; height: calc(100vh - 180px); }
+        .split-panel { background: white; border-radius: 12px; padding: 20px; overflow-y: auto; }
+        
+        /* Tab切换 */
+        .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+        .tab { padding: 12px 24px; cursor: pointer; font-weight: 500; color: #718096; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+        .tab:hover { color: var(--primary); }
+        .tab.active { color: var(--primary); border-bottom-color: var(--gold); }
+        
+        /* 筛选器 */
+        .filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-item { padding: 8px 16px; background: white; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; cursor: pointer; }
+        .filter-item.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        /* 网络图占位 */
+        .network-placeholder { height: 500px; background: linear-gradient(135deg, var(--light-gray) 0%, #E2E8F0 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .network-node { position: absolute; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; box-shadow: 0 4px 12px rgba(26,54,93,0.3); }
+        .network-line { position: absolute; height: 2px; background: var(--border); transform-origin: left center; }
+        
+        /* 仪表盘图表占位 */
+        .chart-placeholder { height: 200px; background: linear-gradient(180deg, var(--light-gray) 0%, #E2E8F0 100%); border-radius: 8px; display: flex; align-items: flex-end; justify-content: center; padding: 20px; gap: 8px; }
+        .chart-bar { width: 40px; background: var(--primary); border-radius: 4px 4px 0 0; transition: height 0.3s; }
+        .chart-bar:nth-child(odd) { background: var(--gold); }
+        
+        /* 环形图占位 */
+        .donut-chart { width: 150px; height: 150px; border-radius: 50%; background: conic-gradient(var(--green) 0deg 216deg, var(--orange) 216deg 288deg, var(--red) 288deg 360deg); position: relative; margin: 0 auto; }
+        .donut-chart::before { content: "75%"; position: absolute; inset: 30px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: var(--primary); }
+        
+        /* 折线图占位 */
+        .line-chart { height: 200px; background: var(--light-gray); border-radius: 8px; position: relative; overflow: hidden; }
+        .line-chart svg { width: 100%; height: 100%; }
+        
+        /* 摘要卡片特殊样式 */
+        .summary-section { margin-bottom: 24px; }
+        .summary-section-title { font-size: 14px; font-weight: 600; color: #718096; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .summary-item { background: white; border-left: 4px solid var(--primary); padding: 16px; margin-bottom: 12px; border-radius: 0 8px 8px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .summary-item.risk { border-left-color: var(--red); }
+        .summary-item.change { border-left-color: var(--gold); }
+        .summary-item.question { border-left-color: var(--orange); }
+        
+        /* 矩阵表格 */
+        .matrix-table { overflow-x: auto; }
+        .matrix-table table { min-width: 800px; }
+        .matrix-cell { text-align: center !important; }
+        .matrix-cell.better { background: #C6F6D5 !important; color: var(--green); font-weight: 600; }
+        .matrix-cell.worse { background: #FED7D7 !important; color: var(--red); font-weight: 600; }
+        
+        /* 资料流项目 */
+        .feed-item { display: flex; gap: 16px; padding: 16px; background: white; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid var(--primary); }
+        .feed-item.new { border-left-color: var(--gold); background: #FFFBEB; }
+        .feed-icon { width: 40px; height: 40px; background: var(--light-gray); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .feed-content { flex: 1; }
+        .feed-title { font-weight: 600; color: var(--primary); margin-bottom: 4px; }
+        .feed-meta { font-size: 12px; color: #718096; }
+        
+        /* 用户头像组 */
+        .avatar-group { display: flex; }
+        .avatar-group .user-avatar { margin-left: -8px; border: 2px solid white; }
+        .avatar-group .user-avatar:first-child { margin-left: 0; }
+        
+        /* 模板卡片 */
+        .template-card { border: 2px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .template-card:hover { border-color: var(--gold); box-shadow: 0 4px 12px rgba(212,175,55,0.2); }
+        .template-icon { width: 60px; height: 60px; background: var(--light-gray); border-radius: 12px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .template-name { font-weight: 600; color: var(--primary); margin-bottom: 8px; }
+        .template-desc { font-size: 13px; color: #718096; }
+
+        /* 工作流步骤 */
+        .workflow-steps { display: flex; gap: 0; margin: 20px 0; }
+        .workflow-step { flex: 1; text-align: center; position: relative; }
+        .workflow-step::after { content: ""; position: absolute; top: 20px; left: 50%; width: 100%; height: 2px; background: var(--border); z-index: 0; }
+        .workflow-step:last-child::after { display: none; }
+        .workflow-step-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--border); margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; font-weight: 600; color: #718096; }
+        .workflow-step.done .workflow-step-icon { background: var(--green); color: white; }
+        .workflow-step.active .workflow-step-icon { background: var(--primary); color: white; }
+        .workflow-step-label { font-size: 12px; color: #718096; }
+        .workflow-step.done .workflow-step-label, .workflow-step.active .workflow-step-label { color: var(--primary); font-weight: 500; }
+
+        /* 权限矩阵 */
+        .permission-cell { text-align: center !important; }
+        .permission-check { color: var(--green); font-size: 18px; }
+        .permission-cross { color: var(--red); font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 左侧导航 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>📊 投研协作平台</h1>
+                <p>高保真设计图 v2.0</p>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">🔬 研究员侧</div>
+                <div class="nav-item active" data-page="researcher-home"><span class="icon">🏠</span>首页工作台</div>
+                <div class="nav-item" data-page="company-research"><span class="icon">🏢</span>公司研究页</div>
+                <div class="nav-item" data-page="doc-reading"><span class="icon">📄</span>文档阅读页</div>
+                <div class="nav-item" data-page="peer-compare"><span class="icon">⚖️</span>同行对比页</div>
+                <div class="nav-item" data-page="conclusion-card"><span class="icon">🎯</span>结论卡页</div>
+                <div class="nav-item" data-page="qa-process"><span class="icon">💬</span>问题处理页</div>
+                <div class="nav-item" data-page="notification-r"><span class="icon">🔔</span>推送通知中心</div>
+                <div class="nav-item" data-page="template-workflow"><span class="icon">📋</span>模板/工作流页</div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">💼 基金经理侧</div>
+                <div class="nav-item" data-page="fm-dashboard"><span class="icon">🎛️</span>决策驾驶舱</div>
+                <div class="nav-item" data-page="portfolio"><span class="icon">📦</span>持仓/观察池</div>
+                <div class="nav-item" data-page="stock-detail"><span class="icon">📈</span>标的详情页</div>
+                <div class="nav-item" data-page="summary-card"><span class="icon">📝</span>摘要卡页</div>
+                <div class="nav-item" data-page="question-track"><span class="icon">❓</span>问题追踪页</div>
+                <div class="nav-item" data-page="decision-pack"><span class="icon">📁</span>决策前资料包</div>
+                <div class="nav-item" data-page="impact-assess"><span class="icon">🌡️</span>组合影响评估</div>
+                <div class="nav-item" data-page="scenario"><span class="icon">🔮</span>情景推演页</div>
+                <div class="nav-item" data-page="notification-fm"><span class="icon">🔔</span>推送通知中心</div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">👔 管理层侧</div>
+                <div class="nav-item" data-page="team-dashboard"><span class="icon">📊</span>团队效率看板</div>
+                <div class="nav-item" data-page="task-progress"><span class="icon">✅</span>任务进度页</div>
+                <div class="nav-item" data-page="coverage"><span class="icon">🗺️</span>覆盖情况页</div>
+                <div class="nav-item" data-page="response-eff"><span class="icon">⚡</span>响应效率页</div>
+                <div class="nav-item" data-page="collab-network"><span class="icon">🕸️</span>协作网络分析</div>
+                <div class="nav-item" data-page="knowledge-heat"><span class="icon">🔥</span>知识覆盖热力图</div>
+                <div class="nav-item" data-page="best-practice"><span class="icon">⭐</span>最佳实践管理</div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">⚙️ 系统管理侧</div>
+                <div class="nav-item" data-page="user-permission"><span class="icon">👥</span>用户权限管理</div>
+                <div class="nav-item" data-page="data-source"><span class="icon">🔌</span>数据源管理</div>
+                <div class="nav-item" data-page="push-rules"><span class="icon">📣</span>推送规则配置</div>
+                <div class="nav-item" data-page="template-mgmt"><span class="icon">📐</span>模板管理页</div>
+                <div class="nav-item" data-page="audit-log"><span class="icon">📜</span>审计日志页</div>
+            </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- ==================== 研究员侧页面 ==================== -->
+            
+            <!-- 1. 首页工作台 -->
+            <div class="page active" id="researcher-home">
+                <div class="top-nav">
+                    <div class="top-nav-left">
+                        <div class="breadcrumb">研究员工作台 / <span>首页</span></div>
+                        <div class="search-box">
+                            <span>🔍</span>
+                            <input type="text" placeholder="搜索公司、文档、研究报告...">
+                        </div>
+                    </div>
+                    <div class="top-nav-right">
+                        <div class="notification">🔔<span class="badge">5</span></div>
+                        <div class="user-avatar">张</div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <div>
+                            <h1 class="page-title">早安，张明 👋</h1>
+                            <p class="page-subtitle">今日待办 8 项 · 覆盖池 32 家公司 · 新增变化 12 条</p>
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-outline">🎯 专注模式</button>
+                            <button class="btn btn-primary">+ 新建研究</button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <!-- 左侧：今日待办 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">📝 今日待办</span>
+                                <div style="display: flex; gap: 8px;">
+                                    <span class="filter-item active">全部</span>
+                                    <span class="filter-item">紧急</span>
+                                    <span class="filter-item">跟进</span>
+                                </div>
+                            </div>
+                            <div class="list-item" style="border-left: 4px solid var(--red);">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                        <span class="tag tag-p0">P0 紧急</span>
+                                        <strong>贵州茅台Q4财报点评</strong>
+                                    </div>
+                                    <div style="font-size: 13px; color: #718096;">财报已发布，需于今日 18:00 前完成点评</div>
+                                </div>
+                                <button class="btn btn-sm btn-primary">立即处理</button>
+                            </div>
+                            <div class="list-item" style="border-left: 4px solid var(--orange);">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                        <span class="tag tag-p1">P1 重要</span>
+                                        <strong>宁德时代新产品发布会纪要</strong>
+                                    </div>
+                                    <div style="font-size: 13px; color: #718096;">产品发布会已结束，需整理核心要点</div>
+                                </div>
+                                <button class="btn btn-sm btn-outline">查看</button>
+                            </div>
+                            <div class="list-item" style="border-left: 4px solid var(--green);">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                        <span class="tag tag-p2">P2 常规</span>
+                                        <strong>比亚迪同行对比更新</strong>
+                                    </div>
+                                    <div style="font-size: 13px; color: #718096;">定期更新同行对比数据</div>
+                                </div>
+                                <button class="btn btn-sm btn-outline">查看</button>
+                            </div>
+                            <div class="list-item">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                        <span class="tag tag-blue">问答</span>
+                                        <strong>回复李经理关于隆基股份的提问</strong>
+                                    </div>
+                                    <div style="font-size: 13px; color: #718096;">基金经理李华的提问，待回复</div>
+                                </div>
+                                <button class="btn btn-sm btn-outline">回复</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 右侧：覆盖池概览 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">📦 覆盖池概览</span>
+                                <button class="btn btn-sm btn-outline">管理覆盖池</button>
+                            </div>
+                            <div class="grid-3">
+                                <div style="background: var(--light-gray); border-radius: 8px; padding: 16px; cursor: pointer;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                        <strong style="color: var(--primary);">贵州茅台</strong>
+                                        <span class="badge-rating badge-buy">买入</span>
+                                    </div>
+                                    <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">食品饮料 · 600519</div>
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <span style="color: var(--gold);">+3</span>
+                                        <span style="font-size: 12px; color: #718096;">新增资料</span>
+                                    </div>
+                                </div>
+                                <div style="background: var(--light-gray); border-radius: 8px; padding: 16px; cursor: pointer;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                        <strong style="color: var(--primary);">宁德时代</strong>
+                                        <span class="badge-rating badge-buy">买入</span>
+                                    </div>
+                                    <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">新能源 · 300750</div>
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <span style="color: var(--gold);">+5</span>
+                                        <span style="font-size: 12px; color: #718096;">新增资料</span>
+                                    </div>
+                                </div>
+                                <div style="background: var(--light-gray); border-radius: 8px; padding: 16px; cursor: pointer;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                        <strong style="color: var(--primary);">比亚迪</strong>
+                                        <span class="badge-rating badge-hold">持有</span>
+                                    </div>
+                                    <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">汽车 · 002594</div>
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <span style="color: var(--gold);">+2</span>
+                                        <span style="font-size: 12px; color: #718096;">新增资料</span>
+                                    </div>
+                                </div>
+                                <div style="background: var(--light-gray); border-radius: 8px; padding: 16px; cursor: pointer;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                        <strong style="color: var(--primary);">隆基股份</strong>
+                                        <span class="badge-rating badge-buy">买入</span>
+                                    </div>
+                                    <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">光伏 · 601012</div>
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <span style="color: var(--gold);">+1</span>
+                                        <span style="font-size: 12px; color: #718096;">新增资料</span>
+                                    </div>
+                                </div>
+                                <div style="background: var(--light-gray); border-radius: 8px; padding: 16px; cursor: pointer;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                        <strong style="color: var(--primary);">药明康德</strong>
+                                        <span class="badge-rating badge-hold">持有</span>
+                                    </div>
+                                    <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">医药 · 603259</div>
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <span style="font-size: 12px; color: #718096;">暂无更新</span>
+                                    </div>
+                                </div>
+                                <div style="background: white; border: 2px dashed var(--border); border-radius: 8px; padding: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #718096;">
+                                    + 添加公司
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 快捷操作 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">⚡ 快捷操作</span>
+                        </div>
+                        <div class="grid-4">
+                            <div class="template-card">
+                                <div class="template-icon">📈</div>
+                                <div class="template-name">个股深度研究</div>
+                                <div class="template-desc">启动标准研究流程</div>
+                            </div>
+                            <div class="template-card">
+                                <div class="template-icon">📊</div>
+                                <div class="template-name">财报快速点评</div>
+                                <div class="template-desc">使用AI辅助分析</div>
+                            </div>
+                            <div class="template-card">
+                                <div class="template-icon">📰</div>
+                                <div class="template-name">事件点评</div>
+                                <div class="template-desc">快速响应突发事件</div>
+                            </div>
+                            <div class="template-card">
+                                <div class="template-icon">⚖️</div>
+                                <div class="template-name">同行对比</div>
+                                <div class="template-desc">横向对比多家公司</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 2. 公司研究页 -->
+            <div class="page" id="company-research">
+                <div class="top-nav">
+                    <div class="top-nav-left">
+                        <div class="breadcrumb">研究员工作台 / <span>公司研究</span></div>
+                        <div class="search-box"><span>🔍</span><input type="text" placeholder="搜索资料..."></div>
+                    </div>
+                    <div class="top-nav-right">
+                        <div class="notification">🔔<span class="badge">5</span></div>
+                        <div class="user-avatar">张</div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    <!-- 公司信息栏 -->
+                    <div class="card" style="display: flex; align-items: center; gap: 24px;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #1A365D 0%, #2C5282 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 36px; color: white;">MT</div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                <h2 style="font-size: 24px; color: var(--primary);">贵州茅台酒股份有限公司</h2>
+                                <span class="badge-rating badge-buy">买入</span>
+                                <span class="tag tag-blue">重点覆盖</span>
+                            </div>
+                            <div style="color: #718096; font-size: 14px;">
+                                600519.SH · 食品饮料 · 白酒 · 市值 2.1万亿 · 研究员：张明
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-outline">☆ 取消关注</button>
+                            <button class="btn btn-primary">新建研究</button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 240px 1fr 300px; gap: 20px;">
+                        <!-- 左侧：筛选器 -->
+                        <div class="card">
+                            <div class="card-title" style="margin-bottom: 16px;">📁 资料类型</div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px; background: var(--light-gray); border-radius: 6px; cursor: pointer;">
+                                    <input type="checkbox" checked> 📜 公告 (28)
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 6px; cursor: pointer;">
+                                    <input type="checkbox" checked> 📊 财报 (12)
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 6px; cursor: pointer;">
+                                    <input type="checkbox" checked> 📰 新闻 (45)
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 6px; cursor: pointer;">
+                                    <input type="checkbox" checked> 🎤 纪要 (8)
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 6px; cursor: pointer;">
+                                    <input type="checkbox"> 📖 研报 (36)
+                                </label>
+                            </div>
+                            <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+                            <div class="card-title" style="margin-bottom: 16px;">📅 时间范围</div>
+                            <select style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                                <option>最近 7 天</option>
+                                <option>最近 30 天</option>
+                                <option>最近 90 天</option>
+                                <option>全部</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 中间：资料流时间线 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">📃 资料流</span>
+                                <span style="color: var(--gold); font-size: 13px;">自上次查看新增 6 条</span>
+                            </div>
+                            <div class="feed-item new">
+                                <div class="feed-icon">📊</div>
+                                <div class="feed-content">
+                                    <div class="feed-title">2025年第四季度报告</div>
+                                    <div class="feed-meta">财报 · 2025-03-18 20:30 · <span style="color: var(--gold);">新</span></div>
+                                </div>
+                                <button class="btn btn-sm btn-primary">查看</button>
+                            </div>
+                            <div class="feed-item new">
+                                <div class="feed-icon">📜</div>
+                                <div class="feed-content">
+                                    <div class="feed-title">关于提高现金分红比例的公告</div>
+                                    <div class="feed-meta">公告 · 2025-03-18 18:00 · <span style="color: var(--gold);">新</span></div>
+                                </div>
+                                <button class="btn btn-sm btn-outline">查看</button>
+                            </div>
+                            <div class="feed-item">
+                                <div class="feed-icon">📰</div>
+                                <div class="feed-content">
+                                    <div class="feed-title">茅台集团召开年度工作会议</div>
+                                    <div class="feed-meta">新闻 · 2025-03-15 09:30</div>
+                                </div>
+                                <button class="btn btn-sm btn-outline">查看</button>
+                            </div>
+                            <div class="feed-item">
+                                <div class="feed-icon">🎤</div>
+                                <div class="feed-content">
+                                    <div class="feed-title">财报电话会议纪要</div>
+                                    <div class="feed-meta">纪要 · 2025-03-12 15:00</div>
+                                </div>
+                                <button class="btn btn-sm btn-outline">查看</button>
+                            </div>
+                        </div>
+                        
+                        <!-- 右侧：公司概览 -->
+                        <div class="card">
+                            <div class="card-title" style="margin-bottom: 16px;">📋 公司概览</div>
+                            <div style="margin-bottom: 20px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="color: #718096;">最新评级</span><span class="badge-rating badge-buy">买入</span></div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="color: #718096;">目标价</span><strong>¥2,200</strong></div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="color: #718096;">当前价</span><strong>¥1,850</strong></div>
+                                <div style="display: flex; justify-content: space-between;"><span style="color: #718096;">潜在空间</span><strong style="color: var(--green);">+18.9%</strong></div>
+                            </div>
+                            <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+                            <div class="card-title" style="margin-bottom: 12px;">核心逻辑</div>
+                            <ul style="font-size: 13px; color: #4A5568; padding-left: 16px; line-height: 1.8;">
+                                <li>高端白酒龙头，品牌护城河深</li>
+                                <li>直销比例提升驱动毛利</li>
+                                <li>消费复苏助力销量增长</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 3. 文档阅读页 -->
+            <div class="page" id="doc-reading">
+                <div class="top-nav">
+                    <div class="top-nav-left">
+                        <div class="breadcrumb">研究员工作台 / 贵州茅台 / <span>文档阅读</span></div>
+                    </div>
+                    <div class="top-nav-right">
+                        <button class="btn btn-sm btn-outline">💾 保存标注</button>
+                        <div class="notification">🔔<span class="badge">5</span></div>
+                        <div class="user-avatar">张</div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    <div class="split-layout">
+                        <!-- 左侧：AI结构化摘要 -->
+                        <div class="split-panel">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 style="color: var(--primary);">AI 结构化摘要</h3>
+                                <span class="confidence"><span class="confidence-dot confidence-high"></span> 高置信度</span>
+                            </div>
+                            
+                            <div class="card" style="border-left: 4px solid var(--green);">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <strong>🎯 核心结论</strong>
+                                    <span class="confidence"><span class="confidence-dot confidence-high"></span></span>
+                                </div>
+                                <p style="font-size: 14px; line-height: 1.6; color: #4A5568;">
+                                    Q4营收同比增长15.2%，净利润同比增长18.6%，超市场预期。直销渠道占比提升至35%，毛利率达92.8%。
+                                </p>
+                                <button class="btn btn-sm btn-outline" style="margin-top: 8px;">🔗 查看原文</button>
+                            </div>
+                            
+                            <div class="card" style="border-left: 4px solid var(--gold);">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <strong>📊 指标变化</strong>
+                                    <span class="confidence"><span class="confidence-dot confidence-high"></span></span>
+                                </div>
+                                <table class="table" style="font-size: 13px;">
+                                    <tr><td>营收</td><td>325.6亿</td><td style="color: var(--green);">+15.2%</td></tr>
+                                    <tr><td>净利润</td><td>168.3亿</td><td style="color: var(--green);">+18.6%</td></tr>
+                                    <tr><td>毛利率</td><td>92.8%</td><td style="color: var(--green);">+0.5pp</td></tr>
+                                </table>
+                            </div>
+                            
+                            <div class="card" style="border-left: 4px solid var(--red);">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <strong>⚠️ 风险提示</strong>
+                                    <span class="confidence"><span class="confidence-dot confidence-medium"></span></span>
+                                </div>
+                                <p style="font-size: 14px; line-height: 1.6; color: #4A5568;">
+                                    库存周转天数较上季度增加5天，需关注渠道库存压力。
+                                </p>
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <strong style="display: block; margin-bottom: 12px;">📝 研究员标注</strong>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-sm btn-outline">✅ 准确</button>
+                                    <button class="btn btn-sm btn-outline">❌ 不准确</button>
+                                    <button class="btn btn-sm btn-outline">✏️ 需修正</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 右侧：原文阅读器 -->
+                        <div class="split-panel" style="background: #FAFAFA;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h3 style="color: var(--primary);">2025年第四季度报告</h3>
+                                <span style="font-size: 13px; color: #718096;">贵州茅台酒股份有限公司</span>
+                            </div>
+                            <div style="background: white; padding: 24px; border-radius: 8px; line-height: 2; font-size: 14px; max-height: 600px; overflow-y: auto;">
+                                <h4 style="color: var(--primary); margin-bottom: 16px;">一、重要提示</h4>
+                                <p>公司董事会、监事会及管理层保证本报告所载资料不存在任何虚假记载、误导性陈述或重大遗漏...</p>
+                                
+                                <h4 style="color: var(--primary); margin: 20px 0 16px; padding: 4px 8px; background: #FFFBEB; border-radius: 4px;" id="highlight-section">二、主要财务数据</h4>
+                                <p style="background: #FFFBEB; padding: 8px; border-radius: 4px;"><strong>营业收入</strong>：本季度实现营业收入 <span style="color: var(--primary); font-weight: 600;">325.6亿元</span>，同比增长 <span style="color: var(--green); font-weight: 600;">15.2%</span>。</p>
+                                <p><strong>归属于上市公司股东的净利润</strong>：<span style="color: var(--primary); font-weight: 600;">168.3亿元</span>，同比增长 <span style="color: var(--green); font-weight: 600;">18.6%</span>。</p>
+                                <p><strong>销售毛利率</strong>：<span style="color: var(--primary); font-weight: 600;">92.8%</span>，较上年同期提升 0.5 个百分点。</p>
+                                
+                                <h4 style="color: var(--primary); margin: 20px 0 16px;">三、经营情况讨论与分析</h4>
+                                <p>报告期内，公司直销渠道占比提升至35%，i茅台平台注册用户突破500万...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 4. 同行对比页 -->
+            <div class="page" id="peer-compare">
+                <div class="top-nav">
+                    <div class="top-nav-left">
+                        <div class="breadcrumb">研究员工作台 / <span>同行对比</span></div>
+                    </div>
+                    <div class="top-nav-right">
+                        <div class="notification">🔔<span class="badge">5</span></div>
+                        <div class="user-avatar">张</div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h1 class="page-title">同行对比分析</h1>
+                        <button class="btn btn-primary">+ 管理同行池</button>
+                    </div>
+                    
+                    <!-- 同行池 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">🏭 同行池（白酒行业）</span>
+                            <span style="color: #718096; font-size: 13px;">已选择 5 家公司</span>
+                        </div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <span style="padding: 8px 16px; background: var(--primary); color: white; border-radius: 20px; font-size: 13px;">贵州茅台 ✕</span>
+                            <span style="padding: 8px 16px; background: var(--light-gray); border-radius: 20px; font-size: 13px;">五粮液 ✕</span>
+                            <span style="padding: 8px 16px; background: var(--light-gray); border-radius: 20px; font-size: 13px;">泸州老窖 ✕</span>
+                            <span style="padding: 8px 16px; background: var(--light-gray); border-radius: 20px; font-size: 13px;">山西汾酒 ✕</span>
+                            <span style="padding: 8px 16px; background: var(--light-gray); border-radius: 20px; font-size: 13px;">洋河股份 ✕</span>
+                            <span style="padding: 8px 16px; border: 2px dashed var(--border); border-radius: 20px; font-size: 13px; cursor: pointer; color: #718096;">+ 添加</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 对比矩阵 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">📊 指标对比矩阵</span>
+                            <div>
+                                <button class="btn btn-sm btn-outline">导出</button>
+                            </div>
+                        </div>
+                        <div class="matrix-table">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>指标</th>
+                                        <th style="text-align: center;">贵州茅台</th>
+                                        <th style="text-align: center;">五粮液</th>
+                                        <th style="text-align: center;">泸州老窖</th>
+                                        <th style="text-align: center;">山西汾酒</th>
+                                        <th style="text-align: center;">洋河股份</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>营收增速</strong></td>
+                                        <td class="matrix-cell better">15.2%</td>
+                                        <td class="matrix-cell">12.8%</td>
+                                        <td class="matrix-cell">18.5%</td>
+                                        <td class="matrix-cell worse">8.2%</td>
+                                        <td class="matrix-cell">14.1%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>毛利率</strong></td>
+                                        <td class="matrix-cell better">92.8%</td>
+                                        <td class="matrix-cell">75.2%</td>
+                                        <td class="matrix-cell">88.6%</td>
+                                        <td class="matrix-cell">72.3%</td>
+                                        <td class="matrix-cell worse">68.5%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>净利率</strong></td>
+                                        <td class="matrix-cell better">51.7%</td>
+                                        <td class="matrix-cell">35.2%</td>
+                                        <td class="matrix-cell">42.1%</td>
+                                        <td class="matrix-cell worse">28.6%</td>
+                                        <td class="matrix-cell">32.4%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>PE(TTM)</strong></td>
+                                        <td class="matrix-cell">28.5x</td>
+                                        <td class="matrix-cell worse">32.1x</td>
+                                        <td class="matrix-cell better">22.3x</td>
+                                        <td class="matrix-cell">25.8x</td>
+                                        <td class="matrix-cell">24.2x</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- AI对比摘要 -->
+                    <div class="card" style="border-left: 4px solid var(--gold);">
+                        <div class="card-header">
+                            <span class="card-title">🤖 AI 对比摘要</span>
+                            <span class="confidence"><span class="confidence-dot confidence-high"></span> 高置信度</span>
+                        </div>
+                        <p style="line-height: 1.8; color: #4A5568;">
+                            贵州茅台在各项盈利指标上均位居行业第一，毛利率高达92.8%，领先第二名泸州老窖4.2个百分点。估值方面，PE处于行业中等水平，考虑其领先的盈利能力，估值具有一定吸引力。泸州老窖营收增速最快，值得关注。
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 5. 结论卡页 -->
+            <div class="page" id="conclusion-card">
+                <div class="top-nav">
+                    <div class="top-nav-left">
+                        <div class="breadcrumb">研究员工作台 / 贵州茅台 / <span>结论卡</span></div>
+                    </div>
+                    <div class="top-nav-right">
+                        <button class="btn btn-sm btn-gold">💾 保存结论卡</button>
+                        <div class="notification">🔔<span class="badge">5</span></div>
+                        <div class="user-avatar">张</div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    <div style="display: grid; grid-template-columns: 1fr 320px; gap: 20px;">
+                        <div>
+                            <!-- 标的信息 -->
+                            <div class="card" style="display: flex; align-items: center; gap: 20px;">
+                                <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #1A365D 0%, #2C5282 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white;">MT</div>
+                                <div style="flex: 1;">
+                                    <h2 style="font-size: 20px; color: var(--primary);">贵州茅台</h2>
+                                    <p style="font-size: 13px; color: #718096;">600519.SH · 食品饮料 · 更新于 2025-03-18</p>
+                                </div>
+                                <span class="badge-rating badge-buy" style="font-size: 18px; padding: 10px 24px;">买入</span>
+                            </div>
+                            
+                            <!-- 核心逻辑 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="card-title">🎯 核心逻辑</span>
+                                </div>
+                                <ul style="padding-left: 20px; line-height: 2; color: #4A5568;">
+                                    <li><strong>品牌护城河深厚</strong>：高端白酒绝对龙头，品牌溢价能力强，竞争格局稳定</li>
+                                    <li><strong>直销比例提升</strong>：直销渠道占比提升至35%，有望继续抬升毛利率</li>
+                                    <li><strong>消费复苏助力</strong>：社会商务活动回暖，高端消费需求稳健</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- 风险提示 -->
+                            <div class="card" style="border-left: 4px solid var(--red);">
+                                <div class="card-header">
+                                    <span class="card-title">⚠️ 风险提示</span>
+                                </div>
+                                <ul style="padding-left: 20px; line-height: 2; color: #4A5568;">
+                                    <li>库存周转天数上升，需关注渠道库存压力</li>
+                                    <li>宏观经济不确定性可能影响高端消费</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 右侧：假设管理 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">📋 假设管理</span>
+                                <button class="btn btn-sm btn-outline">+ 新增</button>
+                            </div>
+                            <div style="margin-bottom: 16px; padding: 12px; background: var(--light-gray); border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <strong style="font-size: 13px;">2025年营收增速 > 10%</strong>
+                                    <span class="tag" style="background: #C6F6D5; color: var(--green);">已验证</span>
+                                </div>
+                                <p style="font-size: 12px; color: #718096;">实际: 15.2% | 验证时间: 2025-03-18</p>
+                            </div>
+                            <div style="margin-bottom: 16px; padding: 12px; background: var(--light-gray); border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <strong style="font-size: 13px;">直销比例提升至40%</strong>
+                                    <span class="tag tag-gray">待验证</span>
+                                </div>
+                                <p style="font-size: 12px; color: #718096;">当前: 35% | 目标: 40%</p>
+                            </div>
+                            <div style="padding: 12px; background: #FED7D7; border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <strong style="font-size: 13px;">库存周转 < 60天</strong>
+                                    <span class="tag" style="background: var(--red); color: white;">已打破</span>
+                                </div>
+                                <p style="font-size: 12px; color: var(--red);">实际: 65天 | 偏离: +8.3%</p>
+                            </div>
+                            
+                            <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--border);">
+                            
+                            <div class="card-title" style="margin-bottom: 12px;">📅 观点时间线</div>
+                            <div class="timeline">
+                                <div class="timeline-item highlight">
+                                    <div style="font-size: 12px; color: #718096;">2025-03-18</div>
+                                    <div style="font-size: 13px;">维持“买入”评级，上调目标价至2200元</div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div style="font-size: 12px; color: #718096;">2025-01-15</div>
+                                    <div style="font-size: 13px;">首次覆盖，给予“买入”评级</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 6. 问题处理页 -->
+            <div class="page" id="qa-process">
+                <div class="top-nav">
+                    <div class="top-nav-left">
+                        <div class="breadcrumb">研究员工作台 / <span>问题处理</span></div>
+                    </div>
+                    <div class="top-nav-right">
+                        <div class="notification">🔔<span class="badge">5</span></div>
+                        <div class="user-avatar">张</div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    <div style="display: grid; grid-template-columns: 280px 1fr 300px; gap: 20px;">
+                        <!-- 左侧：问题列表 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">📬 问题列表</span>
+                            </div>
+                            <div class="tabs" style="margin-bottom: 16px;">
+                                <div class="tab active">待答复 (3)</div>
+                                <div class="tab">已答复</div>
+                            </div>
+                            <div style="padding: 12px; background: var(--primary); color: white; border-radius: 8px; margin-bottom: 12px; cursor: pointer;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <div style="width: 28px; height: 28px; background: white; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">李</div>
+                                    <span style="font-size: 13px;">李华 · 基金经理</span>
+                                </div>
+                                <div style="font-size: 14px; font-weight: 500;">隆基股份Q4出货量下滑原因？</div>
+                                <div style="font-size: 12px; opacity: 0.8; margin-top: 8px;">10分钟前</div>
+                            </div>
+                            <div style="padding: 12px; background: var(--light-gray); border-radius: 8px; margin-bottom: 12px; cursor: pointer;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <div style="width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">王</div>
+                                    <span style="font-size: 13px; color: #718096;">王强 · 基金经理</span>
+                                </div>
+                                <div style="font-size: 14px; color: var(--text);">茅台直销比例提升的空间？</div>
+                                <div style="font-size: 12px; color: #718096; margin-top: 8px;">2小时前</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 中间：问答对话 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <span class="card-title">💬 问答对话</span>
+                                <span style="font-size: 13px; color: #718096;">隆基股份 · 601012</span>
+                            </div>
+                            <div class="chat-container">
+                                <div class="chat-messages">
+                                    <div class="chat-message user">
+                                        <div class="chat-bubble">
+                                            <strong style="display: block; margin-bottom: 4px;">李华 · 基金经理</strong>
+                                            隆基Q4出货量环比下滑20%，是什么原因？是行业需求问题还是公司自身的问题？
+                                        </div>
+                                    </div>
+                                    <div class="chat-message ai">
+                                        <div class="chat-bubble">
+                                            <strong style="display: block; margin-bottom: 4px;">🤖 Copilot 建议答复</strong>
+                                            根据最新财报和行业数据分析：
+                                            <ol style="margin: 8px 0 0 16px; line-height: 1.8;">
+                                                <li>行业因素：Q4光伏装机淘汰带来组件库存调整</li>
+                                                <li>公司因素：主动控制发货节奏以保证价格稳定</li>
+                                            </ol>
+                                            <div style="margin-top: 8px; padding: 8px; background: #EBF8FF; border-radius: 4px; font-size: 12px;">
+                                                📎 证据来源：2025Q4财报第12页、电话会议纪要
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chat-input">
+                                    <input type="text" placeholder="输入回复内容或继续追问...">
+                                    <button class="btn btn-primary">发送</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 右侧：证据引用 -->
+                        <div class="card">
+                            <div class="card-title" style="margin-bottom: 16px;">📚 证据引用</div>
+                            <div style="padding: 12px; background: var(--light-gray); border-radius: 8px; margin-bottom: 12px;">
+                                <div style="font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 4px;">2025Q4财报</div>
+                                <p style="font-size: 12px; color: #718096; line-height: 1.6;">"公司Q4实现组件出货量18.2GW，环比下降主要由于主动调整节奏..."</p>
+                                <button class="btn btn-sm btn-outline" style="margin-top: 8px;">跳转原文</button>
+                            </div>
+                            <div style="padding: 12px; background: var(--light-gray); border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 4px;">电话会议纪要</div>
+                                <p style="font-size: 12px; color: #718096; line-height: 1.6;">"管理层表示为保证价格稳定性，主动控制了出货节奏..."</p>
+                                <button class="btn btn-sm btn-outline" style="margin-top: 8px;">跳转原文</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 7. 推送通知中心 -->
+            <div class="page" id="notification-r">
+                <div class="top-nav">
+                    <div class="top-nav-left"><div class="breadcrumb">研究员工作台 / <span>推送通知中心</span></div></div>
+                    <div class="top-nav-right"><div class="notification">🔔</div><div class="user-avatar">张</div></div>
+                </div>
+                <div class="page-content">
+                    <h1 class="page-title">推送通知中心</h1>
+                    <p class="page-subtitle">全部通知 28 条 · 未读 5 条</p>
+                    <div class="filters">
+                        <span class="filter-item active">全部</span>
+                        <span class="filter-item">未读</span>
+                        <span class="filter-item tag-p0">P0 紧急</span>
+                        <span class="filter-item tag-p1">P1 重要</span>
+                        <span class="filter-item tag-p2">P2 常规</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 320px; gap: 20px;">
+                        <div class="card">
+                            <div class="list-item" style="background: #FED7D7; border-radius: 8px; margin-bottom: 12px;">
+                                <span class="tag tag-p0">P0</span>
+                                <div style="flex: 1;"><strong>贵州茅台Q4财报已发布</strong><br><span style="font-size: 12px; color: #718096;">10分钟前 · 需立即处理</span></div>
+                                <span style="color: var(--primary);">●</span>
+                            </div>
+                            <div class="list-item" style="background: #FEEBC8; border-radius: 8px; margin-bottom: 12px;">
+                                <span class="tag tag-p1">P1</span>
+                                <div style="flex: 1;"><strong>宁德时代新产品发布会</strong><br><span style="font-size: 12px; color: #718096;">2小时前</span></div>
+                            </div>
+                            <div class="list-item" style="border-radius: 8px; margin-bottom: 12px;">
+                                <span class="tag tag-p2">P2</span>
+                                <div style="flex: 1;"><strong>比亚迪同行对比数据更新</strong><br><span style="font-size: 12px; color: #718096;">5小时前</span></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-title" style="margin-bottom: 16px;">⚙️ 推送规则配置</div>
+                            <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;"><input type="checkbox" checked> 站内消息</label>
+                            <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;"><input type="checkbox" checked> 邮件通知</label>
+                            <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;"><input type="checkbox"> 企业微信</label>
+                            <hr style="margin: 16px 0; border: none; border-top: 1px solid var(--border);">
+                            <div class="card-title" style="margin-bottom: 12px;">免打扰时段</div>
+                            <select style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;"><option>22:00 - 08:00</option></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 8. 模板/工作流页 -->
+            <div class="page" id="template-workflow">
+                <div class="top-nav">
+                    <div class="top-nav-left"><div class="breadcrumb">研究员工作台 / <span>模板/工作流</span></div></div>
+                    <div class="top-nav-right"><div class="notification">🔔<span class="badge">5</span></div><div class="user-avatar">张</div></div>
+                </div>
+                <div class="page-content">
+                    <h1 class="page-title">研究模板与工作流</h1>
+                    <p class="page-subtitle">选择模板开始标准化研究流程</p>
+                    <div class="grid-3">
+                        <div class="template-card"><div class="template-icon">📈</div><div class="template-name">个股深度研究</div><div class="template-desc">8个步骤 · 平均完成时间 3天</div></div>
+                        <div class="template-card"><div class="template-icon">📊</div><div class="template-name">财报快速点评</div><div class="template-desc">5个步骤 · 平均完成时间 4小时</div></div>
+                        <div class="template-card"><div class="template-icon">🏭</div><div class="template-name">行业研究报告</div><div class="template-desc">10个步骤 · 平均完成时间 7天</div></div>
+                    </div>
+                    <div class="card" style="margin-top: 20px;">
+                        <div class="card-header"><span class="card-title">📝 当前工作流: 贵州茅台深度研究</span><span class="tag tag-blue">进行中</span></div>
+                        <div class="workflow-steps">
+                            <div class="workflow-step done"><div class="workflow-step-icon">✓</div><div class="workflow-step-label">资料收集</div></div>
+                            <div class="workflow-step done"><div class="workflow-step-icon">✓</div><div class="workflow-step-label">财务分析</div></div>
+                            <div class="workflow-step active"><div class="workflow-step-icon">3</div><div class="workflow-step-label">同行对比</div></div>
+                            <div class="workflow-step"><div class="workflow-step-icon">4</div><div class="workflow-step-label">结论沉淀</div></div>
+                            <div class="workflow-step"><div class="workflow-step-icon">5</div><div class="workflow-step-label">报告输出</div></div>
+                        </div>
+                        <div class="progress" style="margin-top: 20px;"><div class="progress-bar gold" style="width: 50%;"></div></div>
+                        <p style="text-align: center; margin-top: 8px; color: #718096; font-size: 13px;">已完成 50%</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ==================== 基金经理侧页面 ==================== -->
+            
+            <!-- 9. 决策驾驶舱 -->
+            <div class="page" id="fm-dashboard">
+                <div class="top-nav">
+                    <div class="top-nav-left"><div class="breadcrumb">基金经理工作台 / <span>决策驾驶舱</span></div></div>
+                    <div class="top-nav-right">
+                        <div style="display: flex; gap: 8px;"><button class="btn btn-sm btn-outline">日常模式</button><button class="btn btn-sm btn-primary">财报季模式</button></div>
+                        <div class="notification">🔔<span class="badge">8</span></div>
+                        <div class="user-avatar">李</div>
+                    </div>
+                </div>
+                <div class="page-content">
+                    <h1 class="page-title">早安，李华 👋</h1>
+                    <p class="page-subtitle">持仓 15 只 · 观察池 28 只 · 今日重点变化 6 条</p>
+                    <div class="grid-4">
+                        <div class="card stat-card"><div class="stat-value">15</div><div class="stat-label">持仓标的</div><div class="stat-change up">↑ 2 本周新增</div></div>
+                        <div class="card stat-card"><div class="stat-value">6</div><div class="stat-label">今日重点变化</div><div class="stat-change">3个P0 + 3个P1</div></div>
+                        <div class="card stat-card"><div class="stat-value">5</div><div class="stat-label">待答复问题</div><div class="stat-change down">↓ 2 较昨日</div></div>
+                        <div class="card stat-card"><div class="stat-value">92%</div><div class="stat-label">研究覆盖率</div><div class="stat-change up">↑ 5%</div></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-header"><span class="card-title">⚡ 今日重点变化</span></div>
+                            <div class="list-item" style="border-left: 4px solid var(--red);"><span class="tag tag-p0">P0</span><div style="flex: 1;"><strong>贵州茅台</strong> Q4财报已发布<br><span style="font-size: 12px; color: #718096;">持仓 8.5% · 待查看摘要卡</span></div><button class="btn btn-sm btn-primary">查看</button></div>
+                            <div class="list-item" style="border-left: 4px solid var(--orange);"><span class="tag tag-p1">P1</span><div style="flex: 1;"><strong>宁德时代</strong> 新产品发布会<br><span style="font-size: 12px; color: #718096;">持仓 6.2%</span></div><button class="btn btn-sm btn-outline">查看</button></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><span class="card-title">❓ 问题追踪状态</span></div>
+                            <div style="display: flex; gap: 16px;">
+                                <div style="flex: 1; text-align: center; padding: 16px; background: #FEEBC8; border-radius: 8px;"><div style="font-size: 24px; font-weight: 700; color: var(--orange);">5</div><div style="font-size: 12px; color: #718096;">待答复</div></div>
+                                <div style="flex: 1; text-align: center; padding: 16px; background: #BEE3F8; border-radius: 8px;"><div style="font-size: 24px; font-weight: 700; color: #2B6CB0;">12</div><div style="font-size: 12px; color: #718096;">已答复</div></div>
+                                <div style="flex: 1; text-align: center; padding: 16px; background: #E2E8F0; border-radius: 8px;"><div style="font-size: 24px; font-weight: 700; color: #4A5568;">28</div><div style="font-size: 12px; color: #718096;">已关闭</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 10-17. 基金经理其他页面 -->
+            <div class="page" id="portfolio"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">基金经理 / <span>持仓/观察池</span></div></div><div class="top-nav-right"><div class="notification">🔔<span class="badge">8</span></div><div class="user-avatar">李</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">持仓与观察池</h1>
+                    <div class="tabs"><div class="tab active">持仓标的 (15)</div><div class="tab">观察池 (28)</div></div>
+                    <div class="grid-3">
+                        <div class="card" style="border-left: 4px solid var(--gold);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;"><strong>贵州茅台</strong><span class="badge-rating badge-buy">买入</span></div>
+                            <div style="font-size: 13px; color: #718096; margin-bottom: 12px;">600519 · 食品饮料</div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-size: 12px; color: #718096;">持仓比例</span><strong>8.5%</strong></div>
+                            <div class="progress"><div class="progress-bar gold" style="width: 85%;"></div></div>
+                        </div>
+                        <div class="card"><div style="display: flex; justify-content: space-between; margin-bottom: 12px;"><strong>宁德时代</strong><span class="badge-rating badge-buy">买入</span></div><div style="font-size: 13px; color: #718096; margin-bottom: 12px;">300750 · 新能源</div><div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-size: 12px; color: #718096;">持仓比例</span><strong>6.2%</strong></div><div class="progress"><div class="progress-bar" style="width: 62%;"></div></div></div>
+                        <div class="card"><div style="display: flex; justify-content: space-between; margin-bottom: 12px;"><strong>比亚迪</strong><span class="badge-rating badge-hold">持有</span></div><div style="font-size: 13px; color: #718096; margin-bottom: 12px;">002594 · 汽车</div><div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-size: 12px; color: #718096;">持仓比例</span><strong>5.8%</strong></div><div class="progress"><div class="progress-bar" style="width: 58%;"></div></div></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="stock-detail"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">基金经理 / <span>标的详情</span></div></div><div class="top-nav-right"><div class="notification">🔔<span class="badge">8</span></div><div class="user-avatar">李</div></div></div>
+                <div class="page-content">
+                    <div class="card" style="display: flex; align-items: center; gap: 20px;">
+                        <div style="width: 64px; height: 64px; background: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">MT</div>
+                        <div style="flex: 1;"><h2 style="color: var(--primary);">贵州茅台</h2><p style="font-size: 13px; color: #718096;">600519.SH · 持仓 8.5% · 研究员: 张明</p></div>
+                        <span class="badge-rating badge-buy" style="font-size: 16px; padding: 8px 20px;">买入</span>
+                        <button class="btn btn-primary">发起提问</button>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card"><div class="card-title" style="margin-bottom: 16px;">📅 研究流时间线</div>
+                            <div class="timeline">
+                                <div class="timeline-item highlight"><div style="font-size: 12px; color: #718096;">2025-03-18</div><div>📊 Q4财报发布</div></div>
+                                <div class="timeline-item"><div style="font-size: 12px; color: #718096;">2025-03-15</div><div>🎯 结论卡更新: 维持买入</div></div>
+                                <div class="timeline-item"><div style="font-size: 12px; color: #718096;">2025-03-10</div><div>📜 分红公告发布</div></div>
+                            </div>
+                        </div>
+                        <div class="card" style="border-left: 4px solid var(--red);">
+                            <div class="card-title" style="margin-bottom: 16px;">⚠️ 风险变化面板</div>
+                            <div style="padding: 12px; background: #FED7D7; border-radius: 8px; margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between;"><strong>库存风险</strong><span style="color: var(--red);">↑ 上升</span></div>
+                                <p style="font-size: 12px; color: #718096; margin-top: 4px;">库存周转天数增加5天</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="summary-card"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">基金经理 / 贵州茅台 / <span>摘要卡</span></div></div><div class="top-nav-right"><div class="notification">🔔<span class="badge">8</span></div><div class="user-avatar">李</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">摘要卡 - 贵州茅台</h1>
+                    <p class="page-subtitle">3-3-2-1 结构化摘要 · 更新于 2025-03-18</p>
+                    <div class="summary-section"><div class="summary-section-title">🎯 核心结论 (3)</div>
+                        <div class="summary-item">Q4营收同比+15.2%，净利润同比+18.6%，超市场预期<button class="btn btn-sm btn-outline" style="margin-left: 12px;">查看证据</button></div>
+                        <div class="summary-item">直销渠道占比提升至35%，驱动毛利率达92.8%</div>
+                        <div class="summary-item">维持“买入”评级，目标价2200元，潜在空间+18.9%</div>
+                    </div>
+                    <div class="summary-section"><div class="summary-section-title">📈 关键变化 (3)</div>
+                        <div class="summary-item change">提高现金分红比例至60%，股息率提升</div>
+                        <div class="summary-item change">i茅台平台用户突破500万</div>
+                        <div class="summary-item change">管理层对2025年业绩指引积极</div>
+                    </div>
+                    <div class="summary-section"><div class="summary-section-title">⚠️ 风险点 (2)</div>
+                        <div class="summary-item risk">库存周转天数上升，需关注渠道压力</div>
+                        <div class="summary-item risk">宏观经济不确定性影响高端消费</div>
+                    </div>
+                    <div class="summary-section"><div class="summary-section-title">❓ 建议关注问题 (1)</div>
+                        <div class="summary-item question">直销比例进一步提升的空间和节奏如何？<button class="btn btn-sm btn-primary" style="margin-left: 12px;">发起提问</button></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="question-track"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">基金经理 / <span>问题追踪</span></div></div><div class="top-nav-right"><button class="btn btn-primary">+ 新建问题</button><div class="user-avatar">李</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">问题追踪</h1>
+                    <div class="kanban">
+                        <div class="kanban-column" style="background: #FEEBC8;">
+                            <div class="kanban-header">待答复<span class="kanban-count">5</span></div>
+                            <div class="kanban-card"><div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">隆基股份Q4出货量下滑原因？</div><div style="display: flex; justify-content: space-between; font-size: 12px; color: #718096;"><span>张明</span><span>10分钟前</span></div></div>
+                            <div class="kanban-card"><div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">茅台直销比例提升的空间？</div><div style="display: flex; justify-content: space-between; font-size: 12px; color: #718096;"><span>张明</span><span>2小时前</span></div></div>
+                        </div>
+                        <div class="kanban-column" style="background: #BEE3F8;">
+                            <div class="kanban-header">已答复<span class="kanban-count">12</span></div>
+                            <div class="kanban-card"><div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">宁德时代下半年产能规划？</div><div style="display: flex; justify-content: space-between; font-size: 12px; color: #718096;"><span>王芳</span><span>昨天</span></div></div>
+                        </div>
+                        <div class="kanban-column">
+                            <div class="kanban-header">已关闭<span class="kanban-count">28</span></div>
+                            <div class="kanban-card" style="opacity: 0.6;"><div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">比亚迪海外市场进展</div><div style="display: flex; justify-content: space-between; font-size: 12px; color: #718096;"><span>李立</span><span>3天前</span></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="decision-pack"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">基金经理 / <span>决策前资料包</span></div></div><div class="top-nav-right"><div class="user-avatar">李</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">决策前资料包</h1>
+                    <div class="card"><div class="card-header"><span class="card-title">选择标的</span></div>
+                        <select style="width: 300px; padding: 10px; border: 1px solid var(--border); border-radius: 6px;"><option>贵州茅台 (600519)</option><option>宁德时代 (300750)</option></select>
+                    </div>
+                    <div class="tabs"><div class="tab active">财报 (4)</div><div class="tab">公告 (12)</div><div class="tab">结论卡 (3)</div><div class="tab">同行对比</div></div>
+                    <div class="grid-2">
+                        <div class="card" style="display: flex; gap: 16px; align-items: center;"><input type="checkbox" checked><div class="feed-icon">📊</div><div style="flex: 1;"><div class="feed-title">2025年Q4财报</div><div class="feed-meta">2025-03-18</div></div></div>
+                        <div class="card" style="display: flex; gap: 16px; align-items: center;"><input type="checkbox" checked><div class="feed-icon">📜</div><div style="flex: 1;"><div class="feed-title">分红公告</div><div class="feed-meta">2025-03-18</div></div></div>
+                    </div>
+                    <div style="text-align: right; margin-top: 20px;"><button class="btn btn-outline" style="margin-right: 12px;">全选</button><button class="btn btn-gold">📤 导出PDF</button></div>
+                </div>
+            </div>
+            
+            <div class="page" id="impact-assess"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">基金经理 / <span>组合影响评估</span></div></div><div class="top-nav-right"><div class="user-avatar">李</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">组合影响评估</h1>
+                    <div class="card"><div class="card-header"><span class="card-title">选择事件</span></div><select style="width: 400px; padding: 10px; border: 1px solid var(--border); border-radius: 6px;"><option>贵州茅台Q4财报发布 (2025-03-18)</option></select></div>
+                    <div class="card">
+                        <div class="card-title" style="margin-bottom: 16px;">🌡️ 组合影响热力图</div>
+                        <div class="heatmap" style="grid-template-columns: repeat(5, 1fr);">
+                            <div class="heatmap-cell" style="background: var(--green);">+2.5%</div>
+                            <div class="heatmap-cell" style="background: #68D391;">+1.2%</div>
+                            <div class="heatmap-cell" style="background: #9AE6B4;">+0.5%</div>
+                            <div class="heatmap-cell" style="background: #E2E8F0; color: #4A5568;">0%</div>
+                            <div class="heatmap-cell" style="background: #FEB2B2; color: var(--red);">-0.3%</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-around; margin-top: 12px; font-size: 12px; color: #718096;"><span>茅台</span><span>五粮液</span><span>泸州老窖</span><span>山西汾酒</span><span>洋河</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="scenario"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">基金经理 / <span>情景推演</span></div></div><div class="top-nav-right"><div class="user-avatar">李</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">情景推演</h1>
+                    <div style="display: grid; grid-template-columns: 320px 1fr; gap: 20px;">
+                        <div class="card">
+                            <div class="card-title" style="margin-bottom: 16px;">⚙️ 情景参数配置</div>
+                            <label style="display: block; margin-bottom: 16px;"><div style="margin-bottom: 8px; font-size: 13px;">原材料成本变化</div><input type="range" style="width: 100%;"><div style="display: flex; justify-content: space-between; font-size: 12px; color: #718096;"><span>-20%</span><span style="color: var(--primary); font-weight: 600;">+10%</span><span>+20%</span></div></label>
+                            <label style="display: block; margin-bottom: 16px;"><div style="margin-bottom: 8px; font-size: 13px;">需求变化</div><input type="range" style="width: 100%;"></label>
+                            <button class="btn btn-primary" style="width: 100%;">运行推演</button>
+                        </div>
+                        <div class="card">
+                            <div class="card-title" style="margin-bottom: 16px;">📊 推演结果</div>
+                            <table class="table"><thead><tr><th>公司</th><th>影响程度</th><th>预期变化</th></tr></thead>
+                                <tbody><tr><td>贵州茅台</td><td><span class="tag tag-p2">轻微</span></td><td style="color: var(--green);">+0.5%</td></tr>
+                                <tr><td>宁德时代</td><td><span class="tag tag-p1">中等</span></td><td style="color: var(--red);">-2.1%</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="notification-fm"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">基金经理 / <span>推送通知中心</span></div></div><div class="top-nav-right"><div class="user-avatar">李</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">推送通知中心</h1>
+                    <p class="page-subtitle">持仓相关事件优先展示</p>
+                    <div class="filters"><span class="filter-item active">持仓相关</span><span class="filter-item">观察池</span><span class="filter-item">全部</span></div>
+                    <div class="card">
+                        <div class="list-item" style="background: #FED7D7; border-radius: 8px; margin-bottom: 12px;"><span class="tag tag-p0">P0</span><div style="flex: 1;"><strong>贵州茅台</strong> Q4财报已发布<br><span style="font-size: 12px; color: #718096;">持仓 8.5% · 10分钟前</span></div><button class="btn btn-sm btn-primary">查看影响</button></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ==================== 管理层侧页面 ==================== -->
+            <div class="page" id="team-dashboard"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">管理层 / <span>团队效率看板</span></div></div><div class="top-nav-right"><select style="padding: 8px; border: 1px solid var(--border); border-radius: 6px;"><option>本周</option><option>本月</option><option>本季度</option></select><div class="user-avatar">陈</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">团队效率看板</h1>
+                    <div class="grid-4">
+                        <div class="card stat-card"><div class="donut-chart"></div><div class="stat-label" style="margin-top: 16px;">任务完成率</div></div>
+                        <div class="card stat-card"><div class="stat-value">156</div><div class="stat-label">本周产出</div><div class="stat-change up">↑ 12% 较上周</div></div>
+                        <div class="card stat-card"><div class="stat-value">4.2h</div><div class="stat-label">平均响应时间</div><div class="stat-change up">↑ 改善 15%</div></div>
+                        <div class="card stat-card"><div class="stat-value">92%</div><div class="stat-label">研究覆盖率</div><div class="stat-change up">↑ 5%</div></div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="card"><div class="card-title" style="margin-bottom: 16px;">📊 产出趋势</div><div class="chart-placeholder"><div class="chart-bar" style="height: 60%;"></div><div class="chart-bar" style="height: 75%;"></div><div class="chart-bar" style="height: 85%;"></div><div class="chart-bar" style="height: 70%;"></div><div class="chart-bar" style="height: 90%;"></div></div></div>
+                        <div class="card"><div class="card-title" style="margin-bottom: 16px;">⚡ 响应效率趋势</div><div class="line-chart"><svg viewBox="0 0 400 150"><polyline points="0,100 80,80 160,90 240,60 320,40 400,50" fill="none" stroke="#1A365D" stroke-width="3"/></svg></div></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="task-progress"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">管理层 / <span>任务进度</span></div></div><div class="top-nav-right"><div class="user-avatar">陈</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">任务进度详情</h1>
+                    <div class="card"><table class="table"><thead><tr><th>任务</th><th>负责人</th><th>状态</th><th>进度</th><th>截止日期</th></tr></thead>
+                        <tbody><tr><td>贵州茅台Q4点评</td><td>张明</td><td><span class="tag tag-blue">进行中</span></td><td><div class="progress" style="width: 120px;"><div class="progress-bar gold" style="width: 60%;"></div></div></td><td>2025-03-20</td></tr>
+                        <tr><td>宁德时代深度研究</td><td>王芳</td><td><span class="tag tag-p2">已完成</span></td><td><div class="progress" style="width: 120px;"><div class="progress-bar" style="width: 100%;"></div></div></td><td>2025-03-18</td></tr></tbody>
+                    </table></div>
+                </div>
+            </div>
+            
+            <div class="page" id="coverage"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">管理层 / <span>覆盖情况</span></div></div><div class="top-nav-right"><div class="user-avatar">陈</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">研究覆盖情况</h1>
+                    <div class="card"><div class="card-title" style="margin-bottom: 16px;">行业覆盖统计</div><div class="chart-placeholder"><div class="chart-bar" style="height: 95%;"></div><div class="chart-bar" style="height: 88%;"></div><div class="chart-bar" style="height: 75%;"></div><div class="chart-bar" style="height: 82%;"></div><div class="chart-bar" style="height: 60%;"></div><div class="chart-bar" style="height: 45%;"></div></div><div style="display: flex; justify-content: space-around; font-size: 12px; color: #718096; margin-top: 8px;"><span>消费</span><span>新能源</span><span>医药</span><span>科技</span><span>金融</span><span>地产</span></div></div>
+                </div>
+            </div>
+            
+            <div class="page" id="response-eff"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">管理层 / <span>响应效率</span></div></div><div class="top-nav-right"><div class="user-avatar">陈</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">响应效率分析</h1>
+                    <div class="grid-3">
+                        <div class="card stat-card"><div class="stat-value">2.5h</div><div class="stat-label">P0平均响应</div><div class="stat-change up">达标</div></div>
+                        <div class="card stat-card"><div class="stat-value">6.8h</div><div class="stat-label">P1平均响应</div><div class="stat-change up">达标</div></div>
+                        <div class="card stat-card"><div class="stat-value">24h</div><div class="stat-label">P2平均响应</div><div class="stat-change">-</div></div>
+                    </div>
+                    <div class="card"><div class="card-title" style="margin-bottom: 16px;">事件到点评时长趋势</div><div class="line-chart"><svg viewBox="0 0 400 150"><polyline points="0,120 80,100 160,80 240,70 320,50 400,45" fill="none" stroke="var(--green)" stroke-width="3"/><line x1="0" y1="60" x2="400" y2="60" stroke="var(--red)" stroke-width="1" stroke-dasharray="5,5"/></svg><div style="font-size: 12px; color: #718096; text-align: right;">--- 目标线</div></div></div>
+                </div>
+            </div>
+            
+            <div class="page" id="collab-network"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">管理层 / <span>协作网络分析</span></div></div><div class="top-nav-right"><div class="user-avatar">陈</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">协作网络分析</h1>
+                    <div class="card"><div class="network-placeholder">
+                        <div class="network-node" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">李华</div>
+                        <div class="network-node" style="top: 20%; left: 30%; width: 50px; height: 50px; font-size: 12px;">张明</div>
+                        <div class="network-node" style="top: 20%; left: 70%; width: 50px; height: 50px; font-size: 12px;">王芳</div>
+                        <div class="network-node" style="top: 70%; left: 25%; width: 50px; height: 50px; font-size: 12px;">李立</div>
+                        <div class="network-node" style="top: 70%; left: 75%; width: 50px; height: 50px; font-size: 12px;">赵文</div>
+                        <div style="position: absolute; bottom: 20px; left: 20px; font-size: 12px; color: #718096;">节点大小 = 互动频次 | 连线粗细 = 协作强度</div>
+                    </div></div>
+                </div>
+            </div>
+            
+            <div class="page" id="knowledge-heat"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">管理层 / <span>知识覆盖热力图</span></div></div><div class="top-nav-right"><div class="user-avatar">陈</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">知识覆盖热力图</h1>
+                    <div class="card">
+                        <div style="display: grid; grid-template-columns: 100px repeat(5, 1fr); gap: 4px; font-size: 12px;">
+                            <div></div><div style="text-align: center; color: #718096;">财务分析</div><div style="text-align: center; color: #718096;">竞争格局</div><div style="text-align: center; color: #718096;">管理层</div><div style="text-align: center; color: #718096;">行业趋势</div><div style="text-align: center; color: #718096;">估值</div>
+                            <div style="color: #718096;">消费</div><div class="heatmap-cell" style="background: #1A365D;">高</div><div class="heatmap-cell" style="background: #2C5282;">高</div><div class="heatmap-cell" style="background: #4A90A4;">中</div><div class="heatmap-cell" style="background: #1A365D;">高</div><div class="heatmap-cell" style="background: #2C5282;">高</div>
+                            <div style="color: #718096;">新能源</div><div class="heatmap-cell" style="background: #2C5282;">高</div><div class="heatmap-cell" style="background: #1A365D;">高</div><div class="heatmap-cell" style="background: #90CDF4; color: #2C5282;">低</div><div class="heatmap-cell" style="background: #1A365D;">高</div><div class="heatmap-cell" style="background: #4A90A4;">中</div>
+                            <div style="color: #718096;">医药</div><div class="heatmap-cell" style="background: #4A90A4;">中</div><div class="heatmap-cell" style="background: #90CDF4; color: #2C5282;">低</div><div class="heatmap-cell" style="background: #2C5282;">高</div><div class="heatmap-cell" style="background: #4A90A4;">中</div><div class="heatmap-cell" style="background: #90CDF4; color: #2C5282;">低</div>
+                        </div>
+                        <div style="margin-top: 16px; display: flex; align-items: center; gap: 16px; font-size: 12px;"><span style="color: #718096;">密度图例:</span><span style="display: inline-block; width: 40px; height: 16px; background: #1A365D; border-radius: 4px;"></span>高<span style="display: inline-block; width: 40px; height: 16px; background: #4A90A4; border-radius: 4px;"></span>中<span style="display: inline-block; width: 40px; height: 16px; background: #90CDF4; border-radius: 4px;"></span>低</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="best-practice"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">管理层 / <span>最佳实践管理</span></div></div><div class="top-nav-right"><div class="user-avatar">陈</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">最佳实践管理</h1>
+                    <div class="grid-3">
+                        <div class="card" style="border: 2px solid var(--gold);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;"><span class="tag" style="background: var(--gold); color: var(--primary);">⭐ 精选</span><span style="color: var(--gold);">★★★★★</span></div>
+                            <h3 style="color: var(--primary); margin-bottom: 8px;">贵州茅台深度研究</h3>
+                            <p style="font-size: 13px; color: #718096; margin-bottom: 12px;">作者: 张明 · 2025-03-15</p>
+                            <div style="display: flex; gap: 4px;"><span class="tag tag-blue">消费</span><span class="tag tag-gray">白酒</span></div>
+                        </div>
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;"><span class="tag tag-gray">案例</span><span style="color: var(--gold);">★★★★☆</span></div>
+                            <h3 style="color: var(--primary); margin-bottom: 8px;">宁德时代财报点评</h3>
+                            <p style="font-size: 13px; color: #718096; margin-bottom: 12px;">作者: 王芳 · 2025-03-10</p>
+                            <div style="display: flex; gap: 4px;"><span class="tag tag-blue">新能源</span></div>
+                        </div>
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;"><span class="tag tag-gray">案例</span><span style="color: var(--gold);">★★★★☆</span></div>
+                            <h3 style="color: var(--primary); margin-bottom: 8px;">光伏行业对比研究</h3>
+                            <p style="font-size: 13px; color: #718096; margin-bottom: 12px;">作者: 李立 · 2025-03-08</p>
+                            <div style="display: flex; gap: 4px;"><span class="tag tag-blue">新能源</span><span class="tag tag-gray">光伏</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ==================== 系统管理侧页面 ==================== -->
+            <div class="page" id="user-permission"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">系统管理 / <span>用户权限管理</span></div></div><div class="top-nav-right"><button class="btn btn-primary">+ 邀请用户</button><div class="user-avatar">管</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">用户权限管理</h1>
+                    <div class="card"><table class="table"><thead><tr><th>用户</th><th>角色</th><th>部门</th><th>状态</th><th>操作</th></tr></thead>
+                        <tbody><tr><td>张明</td><td><span class="tag tag-blue">研究员</span></td><td>消费组</td><td><span style="color: var(--green);">• 在线</span></td><td><button class="btn btn-sm btn-outline">编辑</button></td></tr>
+                        <tr><td>李华</td><td><span class="tag" style="background: #D4AF37; color: var(--primary);">基金经理</span></td><td>-</td><td><span style="color: var(--green);">• 在线</span></td><td><button class="btn btn-sm btn-outline">编辑</button></td></tr>
+                        <tr><td>陈总</td><td><span class="tag tag-gray">管理层</span></td><td>-</td><td><span style="color: #718096;">• 离线</span></td><td><button class="btn btn-sm btn-outline">编辑</button></td></tr></tbody>
+                    </table></div>
+                    <div class="card" style="margin-top: 20px;"><div class="card-title" style="margin-bottom: 16px;">权限矩阵</div>
+                        <table class="table"><thead><tr><th>功能</th><th class="permission-cell">研究员</th><th class="permission-cell">基金经理</th><th class="permission-cell">管理层</th><th class="permission-cell">管理员</th></tr></thead>
+                        <tbody><tr><td>查看研究报告</td><td class="permission-cell permission-check">✓</td><td class="permission-cell permission-check">✓</td><td class="permission-cell permission-check">✓</td><td class="permission-cell permission-check">✓</td></tr>
+                        <tr><td>创建结论卡</td><td class="permission-cell permission-check">✓</td><td class="permission-cell permission-cross">✗</td><td class="permission-cell permission-cross">✗</td><td class="permission-cell permission-check">✓</td></tr>
+                        <tr><td>系统配置</td><td class="permission-cell permission-cross">✗</td><td class="permission-cell permission-cross">✗</td><td class="permission-cell permission-cross">✗</td><td class="permission-cell permission-check">✓</td></tr></tbody></table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="data-source"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">系统管理 / <span>数据源管理</span></div></div><div class="top-nav-right"><button class="btn btn-primary">+ 新增数据源</button><div class="user-avatar">管</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">数据源管理</h1>
+                    <div class="card"><table class="table"><thead><tr><th>数据源</th><th>类型</th><th>状态</th><th>更新频率</th><th>最后同步</th><th>操作</th></tr></thead>
+                        <tbody><tr><td>Wind财经</td><td>外部API</td><td><span style="color: var(--green);">• 正常</span></td><td>实时</td><td>2025-03-20 22:00</td><td><button class="btn btn-sm btn-outline">同步</button></td></tr>
+                        <tr><td>东方财富</td><td>外部API</td><td><span style="color: var(--green);">• 正常</span></td><td>每小时</td><td>2025-03-20 21:00</td><td><button class="btn btn-sm btn-outline">同步</button></td></tr>
+                        <tr><td>内部数据库</td><td>内部</td><td><span style="color: var(--orange);">• 同步中</span></td><td>每日</td><td>2025-03-20 06:00</td><td><button class="btn btn-sm btn-outline">查看</button></td></tr></tbody>
+                    </table></div>
+                </div>
+            </div>
+            
+            <div class="page" id="push-rules"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">系统管理 / <span>推送规则配置</span></div></div><div class="top-nav-right"><div class="user-avatar">管</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">推送规则配置</h1>
+                    <div class="grid-3">
+                        <div class="card" style="border-left: 4px solid var(--red);">
+                            <h3 style="color: var(--red); margin-bottom: 12px;">P0 紧急事件</h3>
+                            <p style="font-size: 13px; color: #718096; margin-bottom: 16px;">财报发布、重大公告、高管变动</p>
+                            <div style="font-size: 13px;"><strong>推送渠道:</strong> 站内+邮件+短信</div>
+                            <div style="font-size: 13px; margin-top: 8px;"><strong>响应时限:</strong> 5分钟内</div>
+                        </div>
+                        <div class="card" style="border-left: 4px solid var(--orange);">
+                            <h3 style="color: var(--orange); margin-bottom: 12px;">P1 重要事件</h3>
+                            <p style="font-size: 13px; color: #718096; margin-bottom: 16px;">业绩预告、产品发布、行业政策</p>
+                            <div style="font-size: 13px;"><strong>推送渠道:</strong> 站内+邮件</div>
+                            <div style="font-size: 13px; margin-top: 8px;"><strong>响应时限:</strong> 2小时内</div>
+                        </div>
+                        <div class="card" style="border-left: 4px solid var(--green);">
+                            <h3 style="color: var(--green); margin-bottom: 12px;">P2 常规事件</h3>
+                            <p style="font-size: 13px; color: #718096; margin-bottom: 16px;">常规新闻、定期更新</p>
+                            <div style="font-size: 13px;"><strong>推送渠道:</strong> 站内</div>
+                            <div style="font-size: 13px; margin-top: 8px;"><strong>响应时限:</strong> 24小时内</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="template-mgmt"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">系统管理 / <span>模板管理</span></div></div><div class="top-nav-right"><button class="btn btn-primary">+ 新建模板</button><div class="user-avatar">管</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">模板管理</h1>
+                    <div class="card"><table class="table"><thead><tr><th>模板名称</th><th>类型</th><th>版本</th><th>使用次数</th><th>状态</th><th>操作</th></tr></thead>
+                        <tbody><tr><td>个股深度研究</td><td>研究模板</td><td>v2.1</td><td>156</td><td><span class="tag tag-p2">已发布</span></td><td><button class="btn btn-sm btn-outline">编辑</button></td></tr>
+                        <tr><td>财报快速点评</td><td>研究模板</td><td>v1.5</td><td>89</td><td><span class="tag tag-p2">已发布</span></td><td><button class="btn btn-sm btn-outline">编辑</button></td></tr>
+                        <tr><td>行业研究报告</td><td>研究模板</td><td>v1.0</td><td>23</td><td><span class="tag tag-gray">草稿</span></td><td><button class="btn btn-sm btn-outline">编辑</button></td></tr></tbody>
+                    </table></div>
+                </div>
+            </div>
+            
+            <div class="page" id="audit-log"><div class="top-nav"><div class="top-nav-left"><div class="breadcrumb">系统管理 / <span>审计日志</span></div></div><div class="top-nav-right"><button class="btn btn-outline">📤 导出</button><div class="user-avatar">管</div></div></div>
+                <div class="page-content">
+                    <h1 class="page-title">审计日志</h1>
+                    <div class="filters"><span class="filter-item active">全部</span><span class="filter-item">登录</span><span class="filter-item">数据操作</span><span class="filter-item">权限变更</span></div>
+                    <div class="card"><table class="table"><thead><tr><th>时间</th><th>用户</th><th>操作</th><th>对象</th><th>结果</th></tr></thead>
+                        <tbody><tr><td>2025-03-20 22:00:15</td><td>张明</td><td>创建结论卡</td><td>贵州茅台</td><td><span style="color: var(--green);">成功</span></td></tr>
+                        <tr><td>2025-03-20 21:45:30</td><td>李华</td><td>查看摘要卡</td><td>贵州茅台</td><td><span style="color: var(--green);">成功</span></td></tr>
+                        <tr><td>2025-03-20 21:30:00</td><td>系统</td><td>数据同步</td><td>Wind数据源</td><td><span style="color: var(--green);">成功</span></td></tr></tbody>
+                    </table></div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        // 页面切换逻辑
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有active
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                // 添加active
+                this.classList.add('active');
+                const pageId = this.getAttribute('data-page');
+                document.getElementById(pageId).classList.add('active');
+            });
+        });
+        
+        // Tab切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // 筛选器切换
+        document.querySelectorAll('.filter-item').forEach(filter => {
+            filter.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('.filter-item').forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -8,7 +8,8 @@ export default function HomePage() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
+    // 优先从 Zustand store 获取角色，若无则从 localStorage 获取
+    const token = localStorage.getItem("token");
     const role = localStorage.getItem("user_role");
 
     if (!token) {
@@ -19,19 +20,19 @@ export default function HomePage() {
     // 根据角色跳转到对应首页
     switch (role) {
       case "researcher":
-        router.push("/workbench");
+        router.push("/researcher");
         break;
       case "pm":
-        router.push("/dashboard");
+        router.push("/fm");
         break;
       case "leader":
-        router.push("/management");
+        router.push("/leader");
         break;
       case "admin":
-        router.push("/workbench");
+        router.push("/admin");
         break;
       default:
-        router.push("/workbench");
+        router.push("/researcher");
     }
     setChecking(false);
   }, [router]);
