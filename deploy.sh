@@ -10,7 +10,7 @@ echo "========================================"
 
 # ---------- 检测 / 安装 Docker ----------
 install_docker() {
-    echo "[1/5] 检查 Docker..."
+    echo "[1/6] 检查 Docker..."
     if command -v docker &>/dev/null; then
         echo "  ✅ Docker 已安装: $(docker --version)"
     else
@@ -29,10 +29,24 @@ install_docker() {
     echo "  ✅ Docker Compose: $(docker compose version --short)"
 }
 
+# ---------- 检查磁盘空间 ----------
+check_disk_space() {
+    echo ""
+    echo "[2/6] 检查磁盘空间..."
+    available_kb=$(df -k . | tail -1 | awk '{print $4}')
+    available_gb=$((available_kb / 1024 / 1024))
+    if [ "${available_gb}" -lt 5 ]; then
+        echo "  ⚠️  磁盘空间不足 (${available_gb}GB)，建议预留至少 5GB"
+        echo "     继续执行，如构建失败请清理磁盘后重试"
+    else
+        echo "  ✅ 磁盘空间充足 (${available_gb}GB 可用)"
+    fi
+}
+
 # ---------- 配置环境变量 ----------
 setup_env() {
     echo ""
-    echo "[2/5] 配置环境变量..."
+    echo "[3/6] 配置环境变量..."
     if [ ! -f .env.prod ]; then
         # 自动检测服务器公网 IP
         SERVER_IP=$(curl -s --connect-timeout 5 ifconfig.me || curl -s --connect-timeout 5 icanhazip.com || echo "localhost")
@@ -41,6 +55,7 @@ setup_env() {
         SECRET_KEY=$(openssl rand -hex 32)
         JWT_SECRET_KEY=$(openssl rand -hex 32)
         PG_PASSWORD=$(openssl rand -hex 16)
+        MINIO_PASSWORD=$(openssl rand -hex 16)
 
         cat > .env.prod << EOF
 # ============================================
@@ -62,7 +77,7 @@ POSTGRES_PASSWORD=${PG_PASSWORD}
 
 # MinIO
 MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD=$(openssl rand -hex 16)
+MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
 EOF
         echo "  ✅ 已生成 .env.prod (服务器 IP: ${SERVER_IP})"
         echo "  ⚠️  请检查 .env.prod 中的配置是否正确"
@@ -80,16 +95,16 @@ EOF
 # ---------- 构建镜像 ----------
 build_images() {
     echo ""
-    echo "[3/5] 构建 Docker 镜像..."
+    echo "[4/6] 构建 Docker 镜像 (如需强制重建，可手动删除旧镜像)..."
     set -a; source .env.prod; set +a
-    docker compose -f docker-compose.prod.yml build --no-cache
+    docker compose -f docker-compose.prod.yml build
     echo "  ✅ 镜像构建完成"
 }
 
 # ---------- 启动服务 ----------
 start_services() {
     echo ""
-    echo "[4/5] 启动服务..."
+    echo "[5/6] 启动服务..."
     set -a; source .env.prod; set +a
     docker compose -f docker-compose.prod.yml up -d
     echo "  ⏳ 等待服务就绪..."
@@ -100,24 +115,32 @@ start_services() {
 # ---------- 初始化数据库 ----------
 init_database() {
     echo ""
-    echo "[5/5] 初始化数据库..."
+    echo "[6/6] 初始化数据库..."
     set -a; source .env.prod; set +a
 
     # 等待后端完全启动（从宿主机访问映射端口）
+    backend_ready=false
     for i in $(seq 1 30); do
         if curl -sf http://127.0.0.1:8000/health > /dev/null 2>&1; then
+            backend_ready=true
             echo "  ✅ 后端服务已就绪"
             break
-        fi
-        if [ "$i" -eq 30 ]; then
-            echo "  ⚠️  后端启动超时，请手动检查日志: docker logs research-backend"
-            return 1
         fi
         echo "  ⏳ 等待后端启动... ($i/30)"
         sleep 3
     done
 
-    docker exec research-backend python -m app.db.init_db && echo "  ✅ 数据库初始化完成" || echo "  ⚠️  数据库初始化失败，请检查日志"
+    if [ "$backend_ready" = false ]; then
+        echo "  ⚠️  后端启动超时，请检查日志: docker compose -f docker-compose.prod.yml logs backend"
+        return 1
+    fi
+
+    if docker exec research-backend python -m app.db.init_db; then
+        echo "  ✅ 数据库初始化完成"
+    else
+        echo "  ⚠️  数据库初始化失败，请检查日志"
+        return 1
+    fi
 }
 
 # ---------- 打印结果 ----------
@@ -148,6 +171,7 @@ print_result() {
 
 # ---------- 执行 ----------
 install_docker
+check_disk_space
 setup_env
 build_images
 start_services
