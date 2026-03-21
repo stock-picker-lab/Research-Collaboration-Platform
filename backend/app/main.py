@@ -14,6 +14,7 @@ from app.api import (
     copilot_router, alert_router, workbench_router, dashboard_router, management_router,
     portfolios_router, watchlist_router, templates_router,
     admin_router, user_mgmt_router, audit_router, datasource_router,
+    multi_agent_router,
 )
 
 
@@ -72,6 +73,7 @@ app.include_router(admin_router, prefix=API_PREFIX)
 app.include_router(user_mgmt_router, prefix=API_PREFIX)
 app.include_router(audit_router, prefix=API_PREFIX)
 app.include_router(datasource_router, prefix=API_PREFIX)
+app.include_router(multi_agent_router, prefix=API_PREFIX)
 
 
 # ---------- 健康检查 ----------

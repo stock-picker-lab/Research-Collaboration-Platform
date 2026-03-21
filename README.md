@@ -658,7 +658,96 @@ ConclusionStatus = "draft" | "published" | "archived"
 | **数据库** | PostgreSQL 16 + pgvector | 关系型 + 向量检索 |
 | **缓存** | Redis 7 | 会话缓存，任务队列 |
 | **认证** | JWT | 无状态认证 |
+| **AI Agent** | OpenClaw + Agent Orchestrator | 多 Agent 协同编排 |
 | **部署** | Docker Compose + Nginx | 容器化部署 |
+
+### 6.2 多 Agent 协同架构
+
+本平台实现了基于 OpenClaw 的多 Agent 协同框架，支持复杂投研任务的自动分解和协同执行。
+
+#### 6.2.1 Agent 类型
+
+| Agent | 名称 | 职责 |
+|-------|------|------|
+| **Supervisor** | 任务编排 Agent | 分析用户请求，分解任务，制定执行计划 |
+| **DocumentAnalysis** | 文档分析 Agent | 解读财报、公告、纪要，提取关键信息 |
+| **Copilot** | 研报问答 Agent | 基于 RAG 检索回答研究问题 |
+| **PeerComparison** | 同行对比 Agent | 对比多家公司的关键指标 |
+| **AlertClassification** | 事件分级 Agent | 对事件进行 P0/P1/P2 分级 |
+| **ResultSynthesizer** | 结果汇总 Agent | 汇总各 Agent 结果生成最终报告 |
+
+#### 6.2.2 协同流程
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      用户请求（自然语言）                          │
+└─────────────────────────────┬───────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Supervisor Agent                             │
+│  - 分析请求意图                                                  │
+│  - 分解为子任务                                                  │
+│  - 制定执行计划                                                  │
+└─────────────────────────────┬───────────────────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│ Document      │   │ Alert         │   │ Peer          │
+│ Analysis      │   │ Classification│   │ Comparison    │
+│ Agent         │   │ Agent         │   │ Agent         │
+└───────┬───────┘   └───────┬───────┘   └───────┬───────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  Result Synthesizer Agent                        │
+│  - 整合各 Agent 结果                                             │
+│  - 去重、补充信息                                                │
+│  - 生成结构化报告                                                │
+└─────────────────────────────┬───────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       最终报告输出                                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### 6.2.3 API 端点
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | `/api/v1/multi-agent/comprehensive-research` | 综合研报生成 |
+| POST | `/api/v1/multi-agent/event-analysis` | 事件分析 |
+| POST | `/api/v1/multi-agent/peer-comparison` | 同行对比 |
+| POST | `/api/v1/multi-agent/research-qa` | 增强版问答 |
+| GET | `/api/v1/multi-agent/orchestrate` | 通用任务编排 |
+
+#### 6.2.4 协同场景示例
+
+**综合研报生成：**
+```
+用户请求：「分析宁德时代的最新财报和行业动态」
+
+Supervisor 分解：
+1. document_analysis - 分析财报关键数据
+2. alert_classification - 评估事件影响程度
+3. peer_comparison - 对比同行表现（可选）
+
+并行执行后，Synthesizer 汇总生成综合研报
+```
+
+**事件分析：**
+```
+用户请求：「分析光伏行业政策变化的影响」
+
+AlertClassificationAgent：确定 P1 级别
+DocumentAnalysisAgent：分析对各公司影响
+Synthesizer：生成影响评估报告
+```
 
 ### 6.2 系统架构图
 
@@ -787,6 +876,15 @@ investment-research-platform/
 │   │   │   └── v2_models.py         # 新增模型
 │   │   ├── schemas/                 # Pydantic 模型
 │   │   ├── services/               # 业务逻辑层
+│   │   │   ├── copilot_service.py    # Copilot 问答服务
+│   │   │   └── multi_agent_service.py # 多 Agent 协同服务
+│   │   ├── agents/                 # OpenClaw Agent 定义
+│   │   │   ├── __init__.py          # Agent 框架核心
+│   │   │   ├── supervisor.py         # 任务编排 Agent
+│   │   │   ├── document_agent.py     # 文档分析 Agent
+│   │   │   ├── copilot_agent.py      # 问答 Copilot Agent
+│   │   │   ├── peer_agent.py         # 同行对比 Agent
+│   │   │   └── alert_agent.py        # 事件分级 Agent
 │   │   ├── core/                   # 核心配置
 │   │   │   ├── config.py           # 配置管理
 │   │   │   ├── database.py         # 数据库连接

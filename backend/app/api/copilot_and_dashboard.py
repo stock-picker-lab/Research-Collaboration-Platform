@@ -281,3 +281,152 @@ async def get_management_stats(
             "conclusions": weekly_conclusions,
         },
     }
+
+
+# ============================================
+# 多 Agent 协同 API
+# ============================================
+
+from app.services.multi_agent_service import multi_agent_service
+
+
+multi_agent_router = APIRouter(prefix="/multi-agent", tags=["多 Agent 协同"])
+
+
+@multi_agent_router.post("/comprehensive-research")
+async def comprehensive_research(
+    company_id: str,
+    focus_areas: Optional[List[str]] = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(allow_all),
+):
+    """
+    综合研报生成 - 多 Agent 协同
+
+    流程：
+    1. Supervisor 分解任务
+    2. 并行执行文档分析、事件分类等 Agent
+    3. Synthesizer 汇总生成综合报告
+    """
+    result = await multi_agent_service.comprehensive_research(
+        db=db,
+        user_id=current_user["user_id"],
+        company_id=company_id,
+        focus_areas=focus_areas,
+    )
+    return result
+
+
+@multi_agent_router.post("/event-analysis")
+async def event_analysis(
+    content: str,
+    source: str,
+    company_id: Optional[str] = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(allow_all),
+):
+    """
+    事件分析 - 多 Agent 协同
+
+    流程：
+    1. AlertClassificationAgent 分级
+    2. DocumentAnalysisAgent 分析影响
+    3. Synthesizer 汇总
+    """
+    result = await multi_agent_service.event_analysis(
+        db=db,
+        user_id=current_user["user_id"],
+        content=content,
+        source=source,
+        company_id=company_id,
+    )
+    return result
+
+
+@multi_agent_router.post("/peer-comparison")
+async def peer_comparison(
+    company_ids: List[str],
+    metrics: Optional[List[str]] = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(allow_all),
+):
+    """
+    同行对比分析 - 多 Agent 协同
+
+    流程：
+    1. 获取多公司信息
+    2. PeerComparisonAgent 对比分析
+    3. DocumentAnalysisAgent 辅助分析
+    """
+    result = await multi_agent_service.peer_comparison_analysis(
+        db=db,
+        user_id=current_user["user_id"],
+        company_ids=company_ids,
+        metrics=metrics,
+    )
+    return result
+
+
+@multi_agent_router.post("/research-qa")
+async def research_qa_with_multi_agent(
+    question: str,
+    company_id: Optional[str] = None,
+    conversation_id: Optional[str] = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(allow_all),
+):
+    """
+    带上下文的研究问答 - 多 Agent 增强版
+
+    流程：
+    1. RAG 向量检索相关文档
+    2. CopilotAgent 回答
+    3. AlertClassificationAgent 检查是否触发预警
+    """
+    result = await multi_agent_service.research_qa_with_context(
+        db=db,
+        user_id=current_user["user_id"],
+        question=question,
+        company_id=company_id,
+        conversation_id=conversation_id,
+    )
+    return result
+
+
+@multi_agent_router.get("/orchestrate")
+async def orchestrate_task(
+    request: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(allow_all),
+):
+    """
+    通用任务编排 - Supervisor 自动分解并协调多 Agent
+
+    输入自然语言请求，Supervisor 自动分解任务并协调执行。
+    """
+    from app.agents import AgentFactory
+
+    orchestrator = AgentFactory.get_orchestrator()
+    result = await orchestrator.orchestrate(
+        request=request,
+        context={"user_id": current_user["user_id"]}
+    )
+
+    return {
+        "task_id": result.task_id,
+        "success": result.success,
+        "execution_time": result.execution_time,
+        "errors": result.errors,
+        "final_result": result.final_result,
+        "sub_tasks": [
+            {
+                "id": st.id,
+                "agent": st.agent_name,
+                "description": st.description,
+                "status": st.status.value,
+                "result": st.result,
+                "error": st.error,
+            }
+            for st in result.sub_tasks
+        ],
+    }
