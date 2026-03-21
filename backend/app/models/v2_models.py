@@ -255,7 +255,7 @@ class Watchlist(Base, AuditMixin):
     pm_user_id: Mapped[str] = mapped_column(String(64), ForeignKey("users.id"))
     company_id: Mapped[str] = mapped_column(String(64), ForeignKey("companies.id"))
     reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # 添加原因
-    priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority), default=TaskPriority.MEDIUM)
+    priority: Mapped[TaskPriority] = mapped_column(Enum(TaskPriority), default=TaskPriority.P2)
     status: Mapped[PortfolioStatus] = mapped_column(Enum(PortfolioStatus), default=PortfolioStatus.WATCHLIST)
 
     # Relationships
