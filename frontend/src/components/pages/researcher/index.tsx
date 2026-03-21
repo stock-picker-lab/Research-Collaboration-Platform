@@ -194,31 +194,42 @@ export const ResearcherWorkspace: React.FC = () => {
               </div>
             </div>
 
-            {filteredTodos.map((item) => (
-              <div key={item.id} className="list-item" style={{ ...{ borderLeft: 'none' }, ...(getBorderStyle(item.priority) as any) }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <span className={getPriorityClass(item.priority)}>{getPriorityLabel(item.priority)}</span>
-                    <strong style={{ color: 'var(--text)', fontWeight: 600 }}>{item.title}</strong>
+            {filteredTodos.map((item) => {
+              const getBorderColor = () => {
+                switch (item.priority) {
+                  case 'p0': return 'var(--red)';
+                  case 'p1': return 'var(--orange)';
+                  case 'p2': return 'var(--green)';
+                  default: return 'transparent';
+                }
+              };
+
+              return (
+                <div key={item.id} className="list-item" style={{ borderLeft: `4px solid ${getBorderColor()}` }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <span className={getPriorityClass(item.priority)}>{getPriorityLabel(item.priority)}</span>
+                      <strong style={{ color: 'var(--text)', fontWeight: 600 }}>{item.title}</strong>
+                    </div>
+                    <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                      {item.deadline ? `${item.company} · ${item.type} · ${item.deadline}` : `${item.company} · ${item.type}`}
+                    </div>
                   </div>
-                  <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                    {item.deadline ? `${item.company} · ${item.type} · ${item.deadline}` : `${item.company} · ${item.type}`}
-                  </div>
+                  <button
+                    className="btn btn-sm btn-primary"
+                    onClick={() => {
+                      if (item.priority === 'qa') {
+                        router.push('/researcher/questions');
+                      } else {
+                        router.push('/researcher/tasks');
+                      }
+                    }}
+                  >
+                    {item.priority === 'qa' ? '回复' : '立即处理'}
+                  </button>
                 </div>
-                <button
-                  className="btn btn-sm btn-primary"
-                  onClick={() => {
-                    if (item.priority === 'qa') {
-                      router.push('/researcher/questions');
-                    } else {
-                      router.push('/researcher/tasks');
-                    }
-                  }}
-                >
-                  {item.priority === 'qa' ? '回复' : '查看'}
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* 右侧：覆盖池概览 */}
