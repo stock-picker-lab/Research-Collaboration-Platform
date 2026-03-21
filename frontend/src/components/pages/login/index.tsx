@@ -138,7 +138,7 @@ export const LoginPage: React.FC = () => {
       />
 
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
+        <div className="w-full" style={{ maxWidth: '440px' }}>
           {/* Logo */}
           <div className="text-center mb-8">
             <div
@@ -189,7 +189,7 @@ export const LoginPage: React.FC = () => {
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
             }}
           >
-            <div style={{ padding: '32px 24px' }}>
+            <div style={{ padding: '28px 32px' }}>
               {/* Username */}
               <div style={{ marginBottom: 20 }}>
                 <label
@@ -209,6 +209,7 @@ export const LoginPage: React.FC = () => {
                   value={username}
                   onChange={(value) => setUsername(value as string)}
                   style={{
+                    width: '100%',
                     '--td-bg-color': '#F7FAFC',
                     '--td-border-color': '#E2E8F0',
                     '--td-text-color': '#2D3748',
@@ -239,6 +240,7 @@ export const LoginPage: React.FC = () => {
                     if (e.key === 'Enter') handleSubmit();
                   }}
                   style={{
+                    width: '100%',
                     '--td-bg-color': '#F7FAFC',
                     '--td-border-color': '#E2E8F0',
                     '--td-text-color': '#2D3748',
@@ -265,6 +267,7 @@ export const LoginPage: React.FC = () => {
                   options={roleOptions}
                   size="large"
                   style={{
+                    width: '100%',
                     '--td-bg-color': '#F7FAFC',
                     '--td-border-color': '#E2E8F0',
                   } as any}
