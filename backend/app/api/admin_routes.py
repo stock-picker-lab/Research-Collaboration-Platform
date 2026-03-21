@@ -8,7 +8,8 @@ from typing import List, Optional
 
 from app.core.database import get_db
 from app.core.security import get_current_user, require_role
-from app.models.models import User, UserRole, DataSource, AuditLog
+from app.models.models import User, UserRole
+from app.models.v2_models import DataSource, AuditLog
 
 router = APIRouter(prefix="/admin", tags=["系统管理"])
 

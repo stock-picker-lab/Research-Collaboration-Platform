@@ -8,7 +8,7 @@ from typing import List, Optional
 
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.models.models import Portfolio, Watchlist, Company, User
+from app.models.v2_models import Portfolio, Watchlist, Company, User
 from app.schemas import PaginatedResponse
 
 router = APIRouter(prefix="/portfolios", tags=["持仓管理"])
