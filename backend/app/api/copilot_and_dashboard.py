@@ -4,7 +4,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime, timedelta, timezone
 
 from app.core.database import get_db
