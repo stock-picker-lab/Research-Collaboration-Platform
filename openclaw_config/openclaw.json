@@ -1,0 +1,49 @@
+{
+  "gateway": {
+    "port": 18789,
+    "mode": "remote",
+    "bind": "0.0.0.0",
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": false
+    }
+  },
+  "models": {
+    "default": "openai/gpt-4-turbo",
+    "providers": {
+      "openai": {
+        "apiKey": "${OPENAI_API_KEY}",
+        "baseUrl": "https://api.openai.com/v1"
+      },
+      "moonshot": {
+        "apiKey": "${MOONSHOT_API_KEY}",
+        "baseUrl": "https://api.moonshot.cn/v1"
+      },
+      "deepseek": {
+        "apiKey": "${DEEPSEEK_API_KEY}",
+        "baseUrl": "https://api.deepseek.com/v1"
+      }
+    }
+  },
+  "skills": {
+    "enabled": [
+      "web-search",
+      "document-analysis",
+      "data-extraction"
+    ],
+    "customSkillsPath": "/app/custom-skills"
+  },
+  "security": {
+    "apiKey": "${BACKEND_API_KEY}",
+    "allowedOrigins": [
+      "http://localhost:3000",
+      "http://localhost:8000",
+      "http://frontend:3000",
+      "http://backend:8000"
+    ]
+  },
+  "logging": {
+    "level": "info",
+    "format": "json"
+  }
+}

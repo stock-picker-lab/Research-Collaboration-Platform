@@ -1434,11 +1434,14 @@ result = await orchestrator.orchestrate(
 - ✅ 前端核心页面框架
 - ✅ 数据库模型定义
 - ✅ 基础 API 路由
+- ✅ **OpenClaw 集成架构** (HTTP客户端、Agent服务层、配置文件)
+- ✅ **OpenClaw Docker 部署配置**
 
 **进行中:**
-- 🔄 OpenClaw 多 Agent 协同框架实现
+- 🔄 **OpenClaw 自定义技能开发** (研报分析、问答检索、风险监控)
 - 🔄 RAG 向量检索增强
 - 🔄 完整业务逻辑开发
+- 🔄 Agent API 路由实现
 
 ### 11.2 未来规划
 

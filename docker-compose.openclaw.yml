@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  openclaw:
+    image: node:22-alpine
+    container_name: openclaw-gateway
+    working_dir: /app
+    ports:
+      - "18789:18789"  # OpenClaw Gateway端口
+    volumes:
+      - openclaw_data:/root/.openclaw
+      - ./openclaw_config:/app/config:ro
+      - ./openclaw_custom_skills:/app/custom-skills:ro
+    environment:
+      - NODE_ENV=production
+      - OPENCLAW_PORT=18789
+      - OPENCLAW_BIND=0.0.0.0
+      # LLM API配置
+      - OPENAI_API_KEY=${LLM_API_KEY:-}
+      - MOONSHOT_API_KEY=${MOONSHOT_API_KEY:-}
+      # 后端服务地址(供自定义技能调用)
+      - BACKEND_URL=http://backend:8000
+      - BACKEND_API_KEY=${OPENCLAW_API_KEY:-change-me-in-production}
+    command: >
+      sh -c "
+        echo '正在安装OpenClaw...' &&
+        npm install -g openclaw@latest &&
+        echo 'OpenClaw安装完成!' &&
+        
+        echo '配置OpenClaw...' &&
+        mkdir -p /root/.openclaw &&
+        if [ -f /app/config/openclaw.json ]; then
+          cp /app/config/openclaw.json /root/.openclaw/openclaw.json &&
+          echo '配置文件已复制'
+        fi &&
+        
+        echo '启动OpenClaw Gateway...' &&
+        openclaw gateway start --port 18789 --bind 0.0.0.0
+      "
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:18789/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  openclaw_data:
+    driver: local
+
+networks:
+  app-network:
+    external: true
