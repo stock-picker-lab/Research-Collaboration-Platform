@@ -8,6 +8,25 @@ echo "========================================"
 echo "  投研协作平台 - 一键部署"
 echo "========================================"
 
+# ---------- 备份检查 ----------
+check_backup() {
+    if docker compose -f docker-compose.prod.yml ps -q postgres | grep -q .; then
+        echo ""
+        echo "⚠️  检测到运行中的数据库服务"
+        echo ""
+        echo "建议在部署前备份数据库:"
+        echo "  docker exec research-postgres pg_dump -U postgres research_platform > backup_\$(date +%Y%m%d_%H%M%S).sql"
+        echo ""
+        read -p "是否继续部署? (y/N): " -r
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "  已取消部署"
+            exit 0
+        fi
+    fi
+}
+
+check_backup
+
 # ---------- 检测 / 安装 Docker ----------
 install_docker() {
     echo "[1/6] 检查 Docker..."
@@ -16,15 +35,36 @@ install_docker() {
     else
         echo "  ⏳ 安装 Docker..."
         curl -fsSL https://get.docker.com | sh
-        sudo systemctl enable docker
-        sudo systemctl start docker
+        
+        # 启动Docker服务 (兼容systemd和非systemd系统)
+        if command -v systemctl &>/dev/null; then
+            sudo systemctl enable docker
+            sudo systemctl start docker
+        else
+            sudo service docker start
+        fi
         echo "  ✅ Docker 安装完成"
     fi
 
     if ! docker compose version &>/dev/null; then
         echo "  ⏳ 安装 docker-compose-plugin..."
-        sudo apt-get update -qq
-        sudo apt-get install -y -qq docker-compose-plugin
+        
+        # 检测Linux发行版
+        if command -v apt-get &>/dev/null; then
+            # Debian/Ubuntu
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq docker-compose-plugin
+        elif command -v yum &>/dev/null; then
+            # CentOS/RHEL
+            sudo yum install -y docker-compose-plugin
+        elif command -v dnf &>/dev/null; then
+            # Fedora
+            sudo dnf install -y docker-compose-plugin
+        else
+            echo "  ⚠️  无法自动安装 docker-compose-plugin"
+            echo "     请手动安装: https://docs.docker.com/compose/install/"
+            exit 1
+        fi
     fi
     echo "  ✅ Docker Compose: $(docker compose version --short)"
 }
@@ -47,15 +87,32 @@ check_disk_space() {
 setup_env() {
     echo ""
     echo "[3/6] 配置环境变量..."
+    
+    # 检查 openssl 是否安装
+    if ! command -v openssl &>/dev/null; then
+        echo "  ⚠️  openssl 未安装，正在安装..."
+        if command -v apt-get &>/dev/null; then
+            sudo apt-get install -y openssl
+        elif command -v yum &>/dev/null; then
+            sudo yum install -y openssl
+        else
+            echo "  ❌ 无法自动安装 openssl，请手动安装后重试"
+            exit 1
+        fi
+    fi
+    
     if [ ! -f .env.prod ]; then
         # 自动检测服务器公网 IP
         SERVER_IP=$(curl -s --connect-timeout 5 ifconfig.me || curl -s --connect-timeout 5 icanhazip.com || echo "localhost")
 
-        # 生成随机密钥
+        # 生成强随机密钥 (至少32字节)
         SECRET_KEY=$(openssl rand -hex 32)
         JWT_SECRET_KEY=$(openssl rand -hex 32)
-        PG_PASSWORD=$(openssl rand -hex 16)
-        MINIO_PASSWORD=$(openssl rand -hex 16)
+        PG_PASSWORD=$(openssl rand -hex 32)
+        MINIO_USER=$(openssl rand -hex 16)
+        MINIO_PASSWORD=$(openssl rand -hex 32)
+        OPENCLAW_API_KEY=$(openssl rand -hex 32)
+        BACKEND_API_KEY=$(openssl rand -hex 32)
 
         cat > .env.prod << EOF
 # ============================================
@@ -66,23 +123,92 @@ setup_env() {
 # 服务器 IP (用于 CORS 和前端 API 地址)
 SERVER_IP=${SERVER_IP}
 
-# 安全密钥
+# 安全密钥 (自动生成)
 SECRET_KEY=${SECRET_KEY}
 JWT_SECRET_KEY=${JWT_SECRET_KEY}
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=30
 
 # PostgreSQL
 POSTGRES_DB=research_platform
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=${PG_PASSWORD}
+DATABASE_URL=postgresql+asyncpg://postgres:${PG_PASSWORD}@postgres:5432/research_platform
+DATABASE_SYNC_URL=postgresql://postgres:${PG_PASSWORD}@postgres:5432/research_platform
 
-# MinIO
-MINIO_ROOT_USER=minioadmin
+# Redis
+REDIS_URL=redis://redis:6379/0
+
+# MinIO (S3兼容存储)
+MINIO_ROOT_USER=${MINIO_USER}
 MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
+MINIO_ENDPOINT=minio:9000
+MINIO_ACCESS_KEY=${MINIO_USER}
+MINIO_SECRET_KEY=${MINIO_PASSWORD}
+MINIO_BUCKET=research-docs
+MINIO_SECURE=false
+
+# Celery任务队列
+CELERY_BROKER_URL=redis://redis:6379/3
+CELERY_RESULT_BACKEND=redis://redis:6379/4
+
+# OpenClaw配置 (AI Agent核心功能)
+OPENCLAW_BASE_URL=http://openclaw:18789
+OPENCLAW_API_KEY=${OPENCLAW_API_KEY}
+OPENCLAW_ENABLED=true
+OPENCLAW_TIMEOUT=300
+
+# 后端API密钥 (供OpenClaw技能调用)
+BACKEND_API_KEY=${BACKEND_API_KEY}
+
+# CORS跨域配置
+CORS_ORIGINS=["http://localhost:3000","http://${SERVER_IP}:3000","http://${SERVER_IP}"]
+
+# 应用配置
+APP_ENV=production
+DEBUG=false
+LOG_LEVEL=INFO
+
+# ============================================
+# ⚠️  重要提示:
+# ============================================
+# 1. 请配置 LLM_API_KEY (OpenAI/Moonshot API密钥)
+#    没有此配置,AI功能将无法使用!
+#    
+#    LLM_API_KEY=sk-your-api-key-here
+#    LLM_BASE_URL=https://api.openai.com/v1
+#    LLM_MODEL=gpt-4-turbo
+#
+# 2. 如需使用IM软件集成,请配置:
+#    WECHAT_WORK_WEBHOOK_URL=...
+#    DINGTALK_WEBHOOK_URL=...
+#    FEISHU_WEBHOOK_URL=...
+#    SLACK_WEBHOOK_URL=...
+#
+# 3. 所有密码已自动生成,请妥善保管此文件!
+# ============================================
 EOF
         echo "  ✅ 已生成 .env.prod (服务器 IP: ${SERVER_IP})"
-        echo "  ⚠️  请检查 .env.prod 中的配置是否正确"
+        echo ""
+        echo "  ⚠️  重要提示:"
+        echo "     1. 请手动配置 LLM_API_KEY (OpenAI/Moonshot API密钥)"
+        echo "     2. 编辑命令: vim .env.prod"
+        echo "     3. 添加以下配置:"
+        echo "        LLM_API_KEY=sk-your-api-key-here"
+        echo "        LLM_BASE_URL=https://api.openai.com/v1"
+        echo "        LLM_MODEL=gpt-4-turbo"
+        echo ""
+        
+        # 暂停让用户查看并配置
+        read -p "  按Enter键继续部署 (请先配置好API密钥): " -r
     else
         echo "  ✅ .env.prod 已存在，跳过生成"
+        
+        # 检查是否配置了LLM_API_KEY
+        if ! grep -q "^LLM_API_KEY=" .env.prod; then
+            echo "  ⚠️  警告: .env.prod 中缺少 LLM_API_KEY 配置"
+            echo "     AI功能将无法使用,请手动添加配置"
+        fi
     fi
 
     # 创建 .env 软链，让 docker compose 直接执行时也能正确加载变量
@@ -106,8 +232,46 @@ start_services() {
     echo ""
     echo "[5/6] 启动服务..."
     set -a; source .env.prod; set +a
+    
+    # 先停止旧服务 (如果存在)
+    if docker compose -f docker-compose.prod.yml ps -q | grep -q .; then
+        echo "  ⏳ 检测到运行中的服务,正在停止..."
+        docker compose -f docker-compose.prod.yml down
+        echo "  ✅ 旧服务已停止"
+    fi
+    
+    # 启动新服务
     docker compose -f docker-compose.prod.yml up -d
-    echo "  ⏳ 等待服务就绪..."
+    echo "  ⏳ 等待服务就绪 (这可能需要1-2分钟)..."
+    
+    # 等待基础服务就绪
+    for i in $(seq 1 60); do
+        postgres_ready=false
+        redis_ready=false
+        
+        if docker compose -f docker-compose.prod.yml ps postgres | grep -q "healthy"; then
+            postgres_ready=true
+        fi
+        
+        if docker compose -f docker-compose.prod.yml ps redis | grep -q "healthy"; then
+            redis_ready=true
+        fi
+        
+        if [ "$postgres_ready" = true ] && [ "$redis_ready" = true ]; then
+            echo "  ✅ 基础服务已就绪 (PostgreSQL + Redis)"
+            break
+        fi
+        
+        if [ $i -eq 60 ]; then
+            echo "  ⚠️  服务启动超时,请检查日志"
+            docker compose -f docker-compose.prod.yml ps
+            exit 1
+        fi
+        
+        sleep 2
+    done
+    
+    # 额外等待后端完全启动
     sleep 10
     echo "  ✅ 所有服务已启动"
 }
