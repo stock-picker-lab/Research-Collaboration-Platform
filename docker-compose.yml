@@ -2,8 +2,6 @@
 # 投研协作平台 - Docker Compose 一键部署
 # ============================================
 
-version: "3.9"
-
 services:
   # ---------- PostgreSQL + pgvector ----------
   postgres:

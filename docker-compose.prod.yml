@@ -2,8 +2,6 @@
 # 投研协作平台 - 生产环境 Docker Compose
 # ============================================
 
-version: "3.9"
-
 services:
   # ---------- PostgreSQL + pgvector ----------
   postgres:
