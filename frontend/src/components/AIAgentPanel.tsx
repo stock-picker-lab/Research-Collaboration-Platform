@@ -370,3 +370,6 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
     </Card>
   );
 }
+
+// 支持默认导入
+export default AIAgentPanel;

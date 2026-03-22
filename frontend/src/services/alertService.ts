@@ -25,3 +25,7 @@ export const markAllAlertsRead = async (): Promise<void> => {
 export const deleteAlert = async (id: string): Promise<void> => {
   await api.delete(`/alerts/${id}`);
 };
+
+// 别名函数，保持兼容性
+export const markAlertAsRead = markAlertRead;
+export const markAllAlertsAsRead = markAllAlertsRead;

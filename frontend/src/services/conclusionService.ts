@@ -43,3 +43,8 @@ export const archiveConclusion = async (id: string): Promise<ConclusionCard> => 
   const response = await api.post(`/conclusions/${id}/archive`);
   return response.data.data;
 };
+
+export const getConclusionsByCompany = async (companyId: string): Promise<ConclusionCard[]> => {
+  const response = await api.get('/conclusions', { params: { company_id: companyId } });
+  return response.data.data.items || response.data.data || [];
+};

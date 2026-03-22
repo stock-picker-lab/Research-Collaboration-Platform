@@ -29,3 +29,8 @@ export const updateDocument = async (id: string, data: Partial<Document>): Promi
 export const deleteDocument = async (id: string): Promise<void> => {
   await api.delete(`/documents/${id}`);
 };
+
+export const getDocumentsByCompany = async (companyId: string): Promise<Document[]> => {
+  const response = await api.get('/documents', { params: { company_id: companyId } });
+  return response.data.data.items || response.data.data || [];
+};

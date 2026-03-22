@@ -35,3 +35,6 @@ export const addCoverage = async (companyId: string): Promise<void> => {
 export const removeCoverage = async (companyId: string): Promise<void> => {
   await api.delete(`/companies/coverage/${companyId}`);
 };
+
+// 别名函数，保持兼容性
+export const getCompanyById = getCompany;
