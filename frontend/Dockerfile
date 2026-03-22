@@ -3,37 +3,30 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# 增加内存限制和超时设置
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+# 优化内存限制（适配小内存服务器）
+ENV NODE_OPTIONS="--max-old-space-size=2048"
 ENV NPM_CONFIG_FETCH_TIMEOUT=600000
-
-# 安装依赖时清理npm缓存
-COPY package.json package-lock.json* ./
-RUN npm cache clean --force && \
-    npm install --legacy-peer-deps --no-audit --prefer-offline || \
-    (echo "NPM install failed!" && exit 1)
-
-COPY . .
-
-# 检查关键文件是否存在
-RUN ls -la && \
-    ls -la src/ || echo "No src directory" && \
-    ls -la app/ || echo "No app directory"
-
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# 构建并显示详细日志
-RUN echo "Starting Next.js build..." && \
-    npm run build 2>&1 || \
-    (echo "======= BUILD FAILED =======" && \
-     echo "Checking for error logs..." && \
-     cat .next/trace 2>/dev/null || echo "No trace file" && \
-     exit 1)
+# 复制依赖文件
+COPY package.json package-lock.json* ./
 
-# 验证构建产物
-RUN ls -la .next/ && \
-    ls -la .next/standalone/ && \
-    echo "Build artifacts verified!"
+# 安装依赖（使用更稳定的策略）
+RUN npm cache clean --force && \
+    npm ci --legacy-peer-deps --no-audit || \
+    npm install --legacy-peer-deps --no-audit
+
+# 复制源代码
+COPY . .
+
+# 构建（添加详细错误输出）
+RUN npm run build || \
+    (echo "======= BUILD FAILED =======" && \
+     echo "Checking Next.js logs..." && \
+     cat .next/trace 2>/dev/null || true && \
+     echo "Checking TypeScript errors..." && \
+     npx tsc --noEmit || true && \
+     exit 1)
 
 # ---- Production Stage ----
 FROM node:20-alpine AS runner
