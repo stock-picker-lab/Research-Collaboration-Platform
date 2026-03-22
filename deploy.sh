@@ -122,6 +122,7 @@ setup_env() {
 
 # 服务器 IP (用于 CORS 和前端 API 地址)
 SERVER_IP=${SERVER_IP}
+CORS_ORIGINS=["http://localhost:3000","http://${SERVER_IP}:3000","http://${SERVER_IP}"]
 
 # 安全密钥 (自动生成)
 SECRET_KEY=${SECRET_KEY}
@@ -139,6 +140,25 @@ DATABASE_SYNC_URL=postgresql://postgres:${PG_PASSWORD}@postgres:5432/research_pl
 # Redis
 REDIS_URL=redis://redis:6379/0
 
+# LLM API配置 (腾讯云 LKEAP - Kimi K2.5)
+LLM_API_KEY=sk-K8qQ7MTNLrF6GqUxzcMGlGhAYyMaMKV2OZZrzy984LHLjMXt
+LLM_BASE_URL=https://api.lkeap.com/v1
+LLM_MODEL=kimi-k2.5
+
+# Kimi K2.5 特定配置
+KIMI_MODEL=kimi-k2.5
+KIMI_ENABLED=true
+MOONSHOT_API_KEY=sk-K8qQ7MTNLrF6GqUxzcMGlGhAYyMaMKV2OZZrzy984LHLjMXt
+
+# OpenClaw配置 (AI Agent核心功能)
+OPENCLAW_BASE_URL=http://openclaw:18789
+OPENCLAW_API_KEY=${OPENCLAW_API_KEY}
+OPENCLAW_ENABLED=true
+OPENCLAW_TIMEOUT=300
+
+# 后端API密钥 (供OpenClaw技能调用)
+BACKEND_API_KEY=${BACKEND_API_KEY}
+
 # MinIO (S3兼容存储)
 MINIO_ROOT_USER=${MINIO_USER}
 MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
@@ -152,62 +172,34 @@ MINIO_SECURE=false
 CELERY_BROKER_URL=redis://redis:6379/3
 CELERY_RESULT_BACKEND=redis://redis:6379/4
 
-# OpenClaw配置 (AI Agent核心功能)
-OPENCLAW_BASE_URL=http://openclaw:18789
-OPENCLAW_API_KEY=${OPENCLAW_API_KEY}
-OPENCLAW_ENABLED=true
-OPENCLAW_TIMEOUT=300
-
-# 后端API密钥 (供OpenClaw技能调用)
-BACKEND_API_KEY=${BACKEND_API_KEY}
-
-# CORS跨域配置
-CORS_ORIGINS=["http://localhost:3000","http://${SERVER_IP}:3000","http://${SERVER_IP}"]
-
 # 应用配置
 APP_ENV=production
 DEBUG=false
 LOG_LEVEL=INFO
 
+# IM软件集成 (可选)
+IM_INTEGRATION_ENABLED=false
+
 # ============================================
-# ⚠️  重要提示:
+# 配置说明:
 # ============================================
-# 1. 请配置 LLM_API_KEY (OpenAI/Moonshot API密钥)
-#    没有此配置,AI功能将无法使用!
-#    
-#    LLM_API_KEY=sk-your-api-key-here
-#    LLM_BASE_URL=https://api.openai.com/v1
-#    LLM_MODEL=gpt-4-turbo
-#
-# 2. 如需使用IM软件集成,请配置:
-#    WECHAT_WORK_WEBHOOK_URL=...
-#    DINGTALK_WEBHOOK_URL=...
-#    FEISHU_WEBHOOK_URL=...
-#    SLACK_WEBHOOK_URL=...
-#
-# 3. 所有密码已自动生成,请妥善保管此文件!
+# ✅ 所有密钥已自动生成
+# ✅ 已配置腾讯云 Kimi K2.5 LLM
+# ⚠️  如需修改LLM配置,请编辑 LLM_API_KEY/LLM_BASE_URL/LLM_MODEL
+# ⚠️  如需IM集成,请添加对应的Webhook配置
 # ============================================
 EOF
         echo "  ✅ 已生成 .env.prod (服务器 IP: ${SERVER_IP})"
-        echo ""
-        echo "  ⚠️  重要提示:"
-        echo "     1. 请手动配置 LLM_API_KEY (OpenAI/Moonshot API密钥)"
-        echo "     2. 编辑命令: vim .env.prod"
-        echo "     3. 添加以下配置:"
-        echo "        LLM_API_KEY=sk-your-api-key-here"
-        echo "        LLM_BASE_URL=https://api.openai.com/v1"
-        echo "        LLM_MODEL=gpt-4-turbo"
-        echo ""
-        
-        # 暂停让用户查看并配置
-        read -p "  按Enter键继续部署 (请先配置好API密钥): " -r
+        echo "  ✅ 已配置腾讯云 Kimi K2.5 LLM"
     else
         echo "  ✅ .env.prod 已存在，跳过生成"
         
         # 检查是否配置了LLM_API_KEY
         if ! grep -q "^LLM_API_KEY=" .env.prod; then
             echo "  ⚠️  警告: .env.prod 中缺少 LLM_API_KEY 配置"
-            echo "     AI功能将无法使用,请手动添加配置"
+            echo "     建议添加: LLM_API_KEY=sk-K8qQ7MTNLrF6GqUxzcMGlGhAYyMaMKV2OZZrzy984LHLjMXt"
+        else
+            echo "  ✅ LLM_API_KEY 已配置"
         fi
     fi
 
