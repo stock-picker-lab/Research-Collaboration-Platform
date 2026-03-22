@@ -140,15 +140,16 @@ DATABASE_SYNC_URL=postgresql://postgres:${PG_PASSWORD}@postgres:5432/research_pl
 # Redis
 REDIS_URL=redis://redis:6379/0
 
-# LLM API配置 (腾讯云 LKEAP - Kimi K2.5)
-LLM_API_KEY=sk-K8qQ7MTNLrF6GqUxzcMGlGhAYyMaMKV2OZZrzy984LHLjMXt
+# LLM API配置 (需要手动配置)
+# 请从环境变量或手动设置 LLM_API_KEY
+LLM_API_KEY=\${LLM_API_KEY:-your_llm_api_key_here}
 LLM_BASE_URL=https://api.lkeap.com/v1
 LLM_MODEL=kimi-k2.5
 
 # Kimi K2.5 特定配置
 KIMI_MODEL=kimi-k2.5
 KIMI_ENABLED=true
-MOONSHOT_API_KEY=sk-K8qQ7MTNLrF6GqUxzcMGlGhAYyMaMKV2OZZrzy984LHLjMXt
+MOONSHOT_API_KEY=\${LLM_API_KEY:-your_llm_api_key_here}
 
 # OpenClaw配置 (AI Agent核心功能)
 OPENCLAW_BASE_URL=http://openclaw:18789
@@ -197,9 +198,14 @@ EOF
         # 检查是否配置了LLM_API_KEY
         if ! grep -q "^LLM_API_KEY=" .env.prod; then
             echo "  ⚠️  警告: .env.prod 中缺少 LLM_API_KEY 配置"
-            echo "     建议添加: LLM_API_KEY=sk-K8qQ7MTNLrF6GqUxzcMGlGhAYyMaMKV2OZZrzy984LHLjMXt"
+            echo "     请手动编辑 .env.prod 添加你的 LLM API Key"
         else
-            echo "  ✅ LLM_API_KEY 已配置"
+            # 检查是否还是占位符
+            if grep -q "your_llm_api_key_here" .env.prod; then
+                echo "  ⚠️  警告: 请替换 LLM_API_KEY 的占位符为真实密钥"
+            else
+                echo "  ✅ LLM_API_KEY 已配置"
+            fi
         fi
     fi
 
@@ -310,6 +316,10 @@ print_result() {
     echo "  🌐 平台地址:    http://${SERVER_IP}"
     echo "  📖 API 文档:    http://${SERVER_IP}/docs"
     echo "  🗄️  MinIO 控制台: http://${SERVER_IP}:9001"
+    echo ""
+    echo "  ⚠️  重要提示:"
+    echo "     1. 请检查 .env.prod 中的 LLM_API_KEY 是否已配置"
+    echo "     2. 默认演示账号密码仅供测试，生产环境请及时修改"
     echo ""
     echo "  📋 演示账号:"
     echo "     研究员:   researcher1 / research123"

@@ -12,6 +12,10 @@ venv/
 .env.local
 .env.production
 .env.prod
+.env.*.local
+
+# Deployment configs with sensitive data
+deploy.local.sh
 
 # IDE
 .idea/

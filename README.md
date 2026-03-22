@@ -1162,6 +1162,10 @@ npm run dev
 
 点击登录后,将直接进入对应角色的工作台。
 
+### 8.5 安全配置说明 ⚠️
+
+**重要：** 部署脚本中不应包含敏感信息！请参考 [DEPLOYMENT_CONFIG.md](./DEPLOYMENT_CONFIG.md) 配置 LLM API Key 和其他敏感信息。
+
 ---
 
 ## 9. 部署说明
