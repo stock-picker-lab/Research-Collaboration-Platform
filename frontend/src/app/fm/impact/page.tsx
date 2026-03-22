@@ -9,7 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Select, Button, Loading, MessagePlugin, Tag } from 'tdesign-react';
 import { RefreshIcon } from 'tdesign-icons-react';
 import PageHeader from '@/components/common/PageHeader';
-import { getPortfolio } from '@/services/portfolioService';
+import { getPortfolios } from '@/services/portfolioService';
 import type { Portfolio } from '@/types';
 
 interface Event {
@@ -20,7 +20,7 @@ interface Event {
 }
 
 interface ImpactData {
-  company_id: number;
+  company_id: string;
   company_name: string;
   ticker: string;
   weight: number;
@@ -56,8 +56,8 @@ const ImpactAssessPage: React.FC = () => {
 
   const fetchPortfolio = async () => {
     try {
-      const data = await getPortfolio();
-      setPortfolios(data || []);
+      const data = await getPortfolios();
+      setPortfolios(data?.items || []);
     } catch (error) {
       MessagePlugin.error('加载持仓数据失败');
     }
@@ -146,8 +146,8 @@ const ImpactAssessPage: React.FC = () => {
             选择事件:
           </label>
           <Select
-            value={selectedEvent}
-            onChange={(value) => setSelectedEvent(value as number)}
+            value={selectedEvent as any}
+            onChange={(value: any) => setSelectedEvent(value as number)}
             options={eventOptions}
             placeholder="请选择事件"
             className="flex-1 max-w-md"

@@ -9,7 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Slider, Loading, MessagePlugin, Table, Badge } from 'tdesign-react';
 import { PlayCircleIcon, RefreshIcon } from 'tdesign-icons-react';
 import PageHeader from '@/components/common/PageHeader';
-import { getPortfolio } from '@/services/portfolioService';
+import { getPortfolios } from '@/services/portfolioService';
 import type { Portfolio } from '@/types';
 
 interface ScenarioParams {
@@ -21,7 +21,7 @@ interface ScenarioParams {
 }
 
 interface ScenarioResult {
-  company_id: number;
+  company_id: string;
   company_name: string;
   ticker: string;
   weight: number;
@@ -50,8 +50,8 @@ const ScenarioPage: React.FC = () => {
 
   const fetchPortfolio = async () => {
     try {
-      const data = await getPortfolio();
-      setPortfolios(data || []);
+      const data = await getPortfolios();
+      setPortfolios(data?.items || []);
     } catch (error) {
       MessagePlugin.error('加载持仓数据失败');
     }

@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, Select, Loading, MessagePlugin, Progress } from 'tdesign-react';
-import { RefreshIcon, TrendingUpIcon, ClockCircleIcon, FileIcon, CheckCircleIcon } from 'tdesign-icons-react';
+import { RefreshIcon, ChartIcon, TimeIcon, FileIcon, CheckCircleIcon } from 'tdesign-icons-react';
 import PageHeader from '@/components/common/PageHeader';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 
@@ -124,7 +124,7 @@ const LeaderDashboardPage: React.FC = () => {
                 </div>
               </div>
               <div className="mt-4 text-xs text-gray-500 flex items-center gap-1">
-                <TrendingUpIcon size="14px" className="text-green-500" />
+                <ChartIcon size="14px" className="text-green-500" />
                 <span>较上周 +5%</span>
               </div>
             </div>
@@ -149,7 +149,7 @@ const LeaderDashboardPage: React.FC = () => {
                 </div>
               </div>
               <div className="mt-4 text-xs text-gray-500 flex items-center gap-1">
-                <TrendingUpIcon size="14px" className="text-green-500" />
+                <ChartIcon size="14px" className="text-green-500" />
                 <span>较上周 +12%</span>
               </div>
             </div>
@@ -159,7 +159,7 @@ const LeaderDashboardPage: React.FC = () => {
           <Card className="hover:shadow-lg transition-shadow">
             <div className="flex flex-col">
               <div className="flex items-center gap-2 mb-2">
-                <ClockCircleIcon size="20px" className="text-orange-500" />
+                <TimeIcon size="20px" className="text-orange-500" />
                 <span className="text-sm text-gray-500">平均响应时间</span>
               </div>
               <div className="text-4xl font-bold text-gray-900 mb-2">4.2h</div>
@@ -193,7 +193,7 @@ const LeaderDashboardPage: React.FC = () => {
               <div className="text-4xl font-bold text-gray-900 mb-4">92%</div>
               <Progress
                 percentage={92}
-                theme="success"
+                theme={'line' as any}
                 size="small"
                 className="mb-2"
               />
@@ -201,7 +201,7 @@ const LeaderDashboardPage: React.FC = () => {
                 已覆盖 <span className="font-medium">138/150</span> 家公司
               </div>
               <div className="mt-4 text-xs text-gray-500 flex items-center gap-1">
-                <TrendingUpIcon size="14px" className="text-green-500" />
+                <ChartIcon size="14px" className="text-green-500" />
                 <span>较上月 +3%</span>
               </div>
             </div>

@@ -8,7 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Button, Card, Badge, Tabs, Skeleton, MessagePlugin } from 'tdesign-react';
-import { AddIcon, TipsIcon } from 'tdesign-icons-react';
+import { AddIcon, ErrorCircleIcon } from 'tdesign-icons-react';
 import PageHeader from '@/components/common/PageHeader';
 import AIAgentPanel from '@/components/AIAgentPanel';
 import { getCompanyById } from '@/services/companyService';
@@ -35,9 +35,9 @@ const StockDetailPage: React.FC = () => {
     try {
       setLoading(true);
       const [companyData, docsData, conclusionsData] = await Promise.all([
-        getCompanyById(companyId),
-        getDocumentsByCompany(companyId),
-        getConclusionsByCompany(companyId)
+        getCompanyById(String(companyId)),
+        getDocumentsByCompany(String(companyId)),
+        getConclusionsByCompany(String(companyId))
       ]);
       setCompany(companyData);
       setDocuments(docsData);
@@ -67,7 +67,7 @@ const StockDetailPage: React.FC = () => {
       <div className="p-6">
         <Card>
           <div className="text-center py-12">
-            <TipsIcon size="48px" className="text-gray-400 mb-4" />
+            <ErrorCircleIcon size="48px" className="text-gray-400 mb-4" />
             <p className="text-gray-500">未找到公司信息</p>
           </div>
         </Card>
@@ -81,21 +81,19 @@ const StockDetailPage: React.FC = () => {
       <PageHeader
         title={company.name}
         subtitle={`${company.ticker}.${company.exchange} | ${company.industry}`}
-        extra={
-          <div className="flex gap-2">
-            <Button
-              theme="primary"
-              icon={<AddIcon />}
-              onClick={handleAskQuestion}
-            >
-              发起提问
-            </Button>
-            <Button onClick={() => setShowAIPanel(!showAIPanel)}>
-              AI分析
-            </Button>
-          </div>
-        }
       />
+      <div className="flex gap-2 justify-end">
+        <Button
+          theme="primary"
+          icon={<AddIcon />}
+          onClick={handleAskQuestion}
+        >
+          发起提问
+        </Button>
+        <Button onClick={() => setShowAIPanel(!showAIPanel)}>
+          AI分析
+        </Button>
+      </div>
 
       {/* 公司基本信息卡片 */}
       <Card>
@@ -144,8 +142,7 @@ const StockDetailPage: React.FC = () => {
       {showAIPanel && (
         <AIAgentPanel
           companyId={companyId}
-          companyName={company.name}
-          onClose={() => setShowAIPanel(false)}
+          context="company"
         />
       )}
 
@@ -153,7 +150,7 @@ const StockDetailPage: React.FC = () => {
       <Card>
         <Tabs
           value={activeTab}
-          onChange={setActiveTab}
+          onChange={(value: any) => setActiveTab(String(value))}
           placement="top"
         >
           <Tabs.TabPanel value="timeline" label="研究流时间线">
@@ -245,7 +242,7 @@ const StockDetailPage: React.FC = () => {
                           </span>
                         </div>
                         <p className="text-sm text-gray-700 line-clamp-2">
-                          {conclusion.core_logic}
+                          {conclusion.core_conclusions?.[0]?.text || '暂无核心逻辑'}
                         </p>
                       </div>
                       {conclusion.target_price && (

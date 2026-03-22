@@ -1,12 +1,59 @@
 /**
- * Card组件 - TDesign封装
+ * Card组件 - 纯HTML实现 (shadcn/ui 兼容API)
  */
-import { Card as TCard } from 'tdesign-react';
-import type { CardProps } from 'tdesign-react';
+import React from 'react';
 
-export const Card = TCard;
-export const CardHeader = TCard.Header;
-export const CardBody = TCard.Body;
-export const CardFooter = TCard.Footer;
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className = '', ...props }, ref) => (
+    <div
+      ref={ref}
+      className={`rounded-lg border bg-white shadow-sm ${className}`}
+      {...props}
+    />
+  )
+);
+Card.displayName = 'Card';
+
+export const CardHeader = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className = '', ...props }, ref) => (
+    <div
+      ref={ref}
+      className={`flex flex-col space-y-1.5 p-6 ${className}`}
+      {...props}
+    />
+  )
+);
+CardHeader.displayName = 'CardHeader';
+
+export const CardTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
+  ({ className = '', ...props }, ref) => (
+    <h3
+      ref={ref}
+      className={`text-lg font-semibold leading-none tracking-tight ${className}`}
+      {...props}
+    />
+  )
+);
+CardTitle.displayName = 'CardTitle';
+
+export const CardContent = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className = '', ...props }, ref) => (
+    <div ref={ref} className={`p-6 pt-0 ${className}`} {...props} />
+  )
+);
+CardContent.displayName = 'CardContent';
+
+export const CardFooter = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className = '', ...props }, ref) => (
+    <div
+      ref={ref}
+      className={`flex items-center p-6 pt-0 ${className}`}
+      {...props}
+    />
+  )
+);
+CardFooter.displayName = 'CardFooter';
 
 export type { CardProps };

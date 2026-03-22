@@ -16,11 +16,11 @@ import type { Company, Document, ConclusionCard } from '@/types';
 
 const DecisionPackPage: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [selectedCompany, setSelectedCompany] = useState<number | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [conclusions, setConclusions] = useState<ConclusionCard[]>([]);
-  const [selectedDocs, setSelectedDocs] = useState<number[]>([]);
-  const [selectedConclusions, setSelectedConclusions] = useState<number[]>([]);
+  const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
+  const [selectedConclusions, setSelectedConclusions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('reports');
 
@@ -37,7 +37,7 @@ const DecisionPackPage: React.FC = () => {
   const fetchCompanies = async () => {
     try {
       const data = await getCompanies({ page: 1, page_size: 100 });
-      setCompanies(data.items || []);
+      setCompanies(Array.isArray(data) ? data : (data as any).items || []);
     } catch (error) {
       MessagePlugin.error('加载公司列表失败');
     }
@@ -49,8 +49,8 @@ const DecisionPackPage: React.FC = () => {
     try {
       setLoading(true);
       const [docsData, conclusionsData] = await Promise.all([
-        getDocumentsByCompany(selectedCompany),
-        getConclusionsByCompany(selectedCompany)
+        getDocumentsByCompany(String(selectedCompany)),
+        getConclusionsByCompany(String(selectedCompany))
       ]);
       setDocuments(docsData);
       setConclusions(conclusionsData);
@@ -65,9 +65,9 @@ const DecisionPackPage: React.FC = () => {
 
   const handleSelectAll = (type: 'docs' | 'conclusions', checked: boolean) => {
     if (type === 'docs') {
-      setSelectedDocs(checked ? documents.map(d => d.id) : []);
+      setSelectedDocs(checked ? documents.map(d => String(d.id)) : []);
     } else {
-      setSelectedConclusions(checked ? conclusions.map(c => c.id) : []);
+      setSelectedConclusions(checked ? conclusions.map(c => String(c.id)) : []);
     }
   };
 
@@ -203,8 +203,8 @@ const DecisionPackPage: React.FC = () => {
             选择标的:
           </label>
           <Select
-            value={selectedCompany}
-            onChange={(value) => setSelectedCompany(value as number)}
+            value={selectedCompany as any}
+            onChange={(value: any) => setSelectedCompany(String(value))}
             options={companyOptions}
             placeholder="请选择标的公司"
             className="flex-1 max-w-md"
@@ -228,7 +228,7 @@ const DecisionPackPage: React.FC = () => {
           <Loading loading={loading} size="small">
             <Tabs
               value={activeTab}
-              onChange={setActiveTab}
+              onChange={(value: any) => setActiveTab(String(value))}
               placement="top"
             >
               <Tabs.TabPanel value="reports" label={`研报 (${documents.filter(d => d.doc_type === 'research_report').length})`}>

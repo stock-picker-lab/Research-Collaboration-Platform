@@ -11,25 +11,17 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  BrainCircuit, 
-  FileSearch, 
-  MessageSquare, 
-  AlertTriangle,
-  Lightbulb,
-  Loader2,
-  CheckCircle,
-  XCircle
-} from 'lucide-react';
 import { agentService, type AskQuestionResponse, type RiskMonitorResponse } from '@/services/agentService';
 
 interface AIAgentPanelProps {
   companyId?: number;
+  companyName?: string;
   documentId?: number;
   context?: 'document' | 'company' | 'general';
+  onClose?: () => void;
 }
 
-export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIAgentPanelProps) {
+export function AIAgentPanel({ companyId, companyName, documentId, context = 'general', onClose }: AIAgentPanelProps) {
   const [activeTab, setActiveTab] = useState<'qa' | 'risk' | 'analyze' | 'insight'>('qa');
   const [loading, setLoading] = useState(false);
   const [question, setQuestion] = useState('');
@@ -94,7 +86,7 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
         document_id: documentId,
         analysis_focus: ['valuation', 'growth', 'risk']
       });
-      alert('分析完成:\n' + JSON.stringify(result, null, 2));
+      window.alert('分析完成:\n' + JSON.stringify(result, null, 2));
     } catch (err: any) {
       setError(err.response?.data?.detail || '文档分析失败');
     } finally {
@@ -116,7 +108,7 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
         company_id: companyId,
         insight_type: 'comprehensive'
       });
-      alert('洞察生成完成:\n' + JSON.stringify(result, null, 2));
+      window.alert('洞察生成完成:\n' + JSON.stringify(result, null, 2));
     } catch (err: any) {
       setError(err.response?.data?.detail || '洞察生成失败');
     } finally {
@@ -138,9 +130,12 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <BrainCircuit className="w-5 h-5" />
+          <span className="text-xl">🧠</span>
           AI Agent 助手
           <Badge variant="secondary" className="ml-2">OpenClaw</Badge>
+          {onClose && (
+            <button onClick={onClose} className="ml-auto text-gray-400 hover:text-gray-600">✕</button>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -151,8 +146,7 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
             size="sm"
             onClick={() => setActiveTab('qa')}
           >
-            <MessageSquare className="w-4 h-4 mr-1" />
-            智能问答
+            💬 智能问答
           </Button>
           {companyId && (
             <>
@@ -161,16 +155,14 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
                 size="sm"
                 onClick={() => setActiveTab('risk')}
               >
-                <AlertTriangle className="w-4 h-4 mr-1" />
-                风险监控
+                ⚠️ 风险监控
               </Button>
               <Button
                 variant={activeTab === 'insight' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setActiveTab('insight')}
               >
-                <Lightbulb className="w-4 h-4 mr-1" />
-                投资洞察
+                💡 投资洞察
               </Button>
             </>
           )}
@@ -180,8 +172,7 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
               size="sm"
               onClick={() => setActiveTab('analyze')}
             >
-              <FileSearch className="w-4 h-4 mr-1" />
-              文档分析
+              🔍 文档分析
             </Button>
           )}
         </div>
@@ -189,7 +180,6 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
         {/* 错误提示 */}
         {error && (
           <Alert variant="destructive">
-            <XCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -209,20 +199,13 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
               disabled={loading || !question.trim()}
               className="w-full"
             >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  分析中...
-                </>
-              ) : (
-                '提问'
-              )}
+              {loading ? '⏳ 分析中...' : '提问'}
             </Button>
 
             {qaResult && (
               <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-green-600">✅</span>
                   <span className="font-semibold">AI 回答</span>
                   <Badge variant="outline">{qaResult.confidence}</Badge>
                 </div>
@@ -247,7 +230,7 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
                         key={idx}
                         variant="link"
                         size="sm"
-                        className="text-xs p-0 h-auto"
+                        className="text-xs p-0 h-auto block"
                         onClick={() => setQuestion(q)}
                       >
                         • {q}
@@ -268,14 +251,7 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
               disabled={loading}
               className="w-full"
             >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  分析中...
-                </>
-              ) : (
-                '执行风险监控'
-              )}
+              {loading ? '⏳ 分析中...' : '执行风险监控'}
             </Button>
 
             {riskResult && (
@@ -292,21 +268,21 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
                 {riskResult.risk_alerts.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-sm font-semibold">风险预警:</p>
-                    {riskResult.risk_alerts.map((alert, idx) => (
+                    {riskResult.risk_alerts.map((riskAlert, idx) => (
                       <div key={idx} className="p-3 bg-orange-50 border-l-4 border-orange-400 rounded">
                         <div className="flex items-center gap-2 mb-1">
                           <Badge variant="outline" className="text-xs">
-                            {alert.risk_type}
+                            {riskAlert.risk_type}
                           </Badge>
-                          <Badge className={getRiskLevelColor(alert.severity)}>
-                            {alert.severity}
+                          <Badge className={getRiskLevelColor(riskAlert.severity)}>
+                            {riskAlert.severity}
                           </Badge>
                         </div>
-                        <p className="text-sm font-semibold">{alert.title}</p>
-                        <p className="text-xs text-gray-600 mt-1">{alert.description}</p>
-                        {alert.recommended_action && (
+                        <p className="text-sm font-semibold">{riskAlert.title}</p>
+                        <p className="text-xs text-gray-600 mt-1">{riskAlert.description}</p>
+                        {riskAlert.recommended_action && (
                           <p className="text-xs text-blue-600 mt-2">
-                            💡 建议: {alert.recommended_action}
+                            💡 建议: {riskAlert.recommended_action}
                           </p>
                         )}
                       </div>
@@ -335,14 +311,7 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
               disabled={loading}
               className="w-full"
             >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  分析中...
-                </>
-              ) : (
-                '分析文档'
-              )}
+              {loading ? '⏳ 分析中...' : '分析文档'}
             </Button>
           </div>
         )}
@@ -355,14 +324,7 @@ export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIA
               disabled={loading}
               className="w-full"
             >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  生成中...
-                </>
-              ) : (
-                '生成投资洞察'
-              )}
+              {loading ? '⏳ 生成中...' : '生成投资洞察'}
             </Button>
           </div>
         )}

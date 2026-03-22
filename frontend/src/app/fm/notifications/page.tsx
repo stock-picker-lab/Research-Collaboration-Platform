@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, Tabs, Badge, Button, MessagePlugin, Loading } from 'tdesign-react';
-import { BellIcon, CheckCircleIcon } from 'tdesign-icons-react';
+import { NotificationIcon, CheckCircleIcon } from 'tdesign-icons-react';
 import PageHeader from '@/components/common/PageHeader';
 import { getAlerts, markAlertAsRead, markAllAlertsAsRead } from '@/services/alertService';
 import type { Alert } from '@/types';
@@ -25,7 +25,7 @@ const NotificationsPage: React.FC = () => {
     try {
       setLoading(true);
       const data = await getAlerts();
-      setAlerts(data || []);
+      setAlerts((data as any)?.items || (Array.isArray(data) ? data : []) as Alert[]);
     } catch (error) {
       MessagePlugin.error('加载通知失败');
     } finally {
@@ -33,9 +33,9 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
-  const handleMarkAsRead = async (id: number) => {
+  const handleMarkAsRead = async (id: string) => {
     try {
-      await markAlertAsRead(id);
+      await markAlertAsRead(id as any);
       setAlerts(alerts.map(a => a.id === id ? { ...a, is_read: true } : a));
       MessagePlugin.success('已标记为已读');
     } catch (error) {
@@ -86,23 +86,23 @@ const NotificationsPage: React.FC = () => {
       <PageHeader
         title="通知中心"
         subtitle={`${unreadCount} 条未读通知`}
-        extra={
-          <Button
-            icon={<CheckCircleIcon />}
-            onClick={handleMarkAllAsRead}
-            disabled={unreadCount === 0}
-          >
-            全部已读
-          </Button>
-        }
       />
+      <div className="flex justify-end mb-4">
+        <Button
+          icon={<CheckCircleIcon />}
+          onClick={handleMarkAllAsRead}
+          disabled={unreadCount === 0}
+        >
+          全部已读
+        </Button>
+      </div>
 
       {/* 通知列表 */}
       <Card>
         <Loading loading={loading} size="small">
           <Tabs
             value={activeTab}
-            onChange={setActiveTab}
+            onChange={(value: any) => setActiveTab(String(value))}
             placement="top"
           >
             <Tabs.TabPanel value="all" label={`全部 (${alerts.length})`}>
@@ -149,7 +149,7 @@ const NotificationsPage: React.FC = () => {
 // 通知列表组件
 interface AlertListProps {
   alerts: Alert[];
-  onMarkAsRead: (id: number) => void;
+  onMarkAsRead: (id: string) => void;
 }
 
 const AlertList: React.FC<AlertListProps> = ({ alerts, onMarkAsRead }) => {
@@ -165,7 +165,7 @@ const AlertList: React.FC<AlertListProps> = ({ alerts, onMarkAsRead }) => {
   if (alerts.length === 0) {
     return (
       <div className="text-center py-12">
-        <BellIcon size="48px" className="text-gray-300 mb-4" />
+        <NotificationIcon size="48px" className="text-gray-300 mb-4" />
         <p className="text-gray-500">暂无通知</p>
       </div>
     );

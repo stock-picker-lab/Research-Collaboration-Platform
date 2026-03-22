@@ -19,14 +19,8 @@ RUN npm cache clean --force && \
 # 复制源代码
 COPY . .
 
-# 构建（添加详细错误输出）
-RUN npm run build || \
-    (echo "======= BUILD FAILED =======" && \
-     echo "Checking Next.js logs..." && \
-     cat .next/trace 2>/dev/null || true && \
-     echo "Checking TypeScript errors..." && \
-     npx tsc --noEmit || true && \
-     exit 1)
+# 构建
+RUN npm run build
 
 # ---- Production Stage ----
 FROM node:20-alpine AS runner
