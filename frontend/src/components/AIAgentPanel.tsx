@@ -1,0 +1,372 @@
+/**
+ * AI Agent 面板组件
+ * 提供 OpenClaw Agent 功能的交互界面
+ */
+
+'use client';
+
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  BrainCircuit, 
+  FileSearch, 
+  MessageSquare, 
+  AlertTriangle,
+  Lightbulb,
+  Loader2,
+  CheckCircle,
+  XCircle
+} from 'lucide-react';
+import { agentService, type AskQuestionResponse, type RiskMonitorResponse } from '@/services/agentService';
+
+interface AIAgentPanelProps {
+  companyId?: number;
+  documentId?: number;
+  context?: 'document' | 'company' | 'general';
+}
+
+export function AIAgentPanel({ companyId, documentId, context = 'general' }: AIAgentPanelProps) {
+  const [activeTab, setActiveTab] = useState<'qa' | 'risk' | 'analyze' | 'insight'>('qa');
+  const [loading, setLoading] = useState(false);
+  const [question, setQuestion] = useState('');
+  const [qaResult, setQaResult] = useState<AskQuestionResponse | null>(null);
+  const [riskResult, setRiskResult] = useState<RiskMonitorResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // 智能问答
+  const handleAskQuestion = async () => {
+    if (!question.trim()) return;
+    
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await agentService.askQuestion({
+        question,
+        company_id: companyId,
+        doc_types: ['research_report', 'financial_statement']
+      });
+      setQaResult(result);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || '问答失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 风险监控
+  const handleRiskMonitor = async () => {
+    if (!companyId) {
+      setError('请先选择公司');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await agentService.monitorRisk({
+        company_id: companyId,
+        risk_types: ['financial', 'operational', 'market', 'regulatory'],
+        time_window_days: 30
+      });
+      setRiskResult(result);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || '风险监控失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 文档分析
+  const handleAnalyzeDocument = async () => {
+    if (!documentId) {
+      setError('请先选择文档');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await agentService.analyzeDocument({
+        document_id: documentId,
+        analysis_focus: ['valuation', 'growth', 'risk']
+      });
+      alert('分析完成:\n' + JSON.stringify(result, null, 2));
+    } catch (err: any) {
+      setError(err.response?.data?.detail || '文档分析失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 生成洞察
+  const handleGenerateInsight = async () => {
+    if (!companyId) {
+      setError('请先选择公司');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await agentService.generateInsight({
+        company_id: companyId,
+        insight_type: 'comprehensive'
+      });
+      alert('洞察生成完成:\n' + JSON.stringify(result, null, 2));
+    } catch (err: any) {
+      setError(err.response?.data?.detail || '洞察生成失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getRiskLevelColor = (level: string) => {
+    switch (level) {
+      case 'low': return 'bg-green-100 text-green-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'high': return 'bg-orange-100 text-orange-800';
+      case 'critical': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <BrainCircuit className="w-5 h-5" />
+          AI Agent 助手
+          <Badge variant="secondary" className="ml-2">OpenClaw</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Tab 切换 */}
+        <div className="flex gap-2 border-b pb-2">
+          <Button
+            variant={activeTab === 'qa' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('qa')}
+          >
+            <MessageSquare className="w-4 h-4 mr-1" />
+            智能问答
+          </Button>
+          {companyId && (
+            <>
+              <Button
+                variant={activeTab === 'risk' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveTab('risk')}
+              >
+                <AlertTriangle className="w-4 h-4 mr-1" />
+                风险监控
+              </Button>
+              <Button
+                variant={activeTab === 'insight' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveTab('insight')}
+              >
+                <Lightbulb className="w-4 h-4 mr-1" />
+                投资洞察
+              </Button>
+            </>
+          )}
+          {documentId && (
+            <Button
+              variant={activeTab === 'analyze' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveTab('analyze')}
+            >
+              <FileSearch className="w-4 h-4 mr-1" />
+              文档分析
+            </Button>
+          )}
+        </div>
+
+        {/* 错误提示 */}
+        {error && (
+          <Alert variant="destructive">
+            <XCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* 智能问答 Tab */}
+        {activeTab === 'qa' && (
+          <div className="space-y-4">
+            <Textarea
+              placeholder="请输入你的问题(例如: 这家公司的盈利能力如何?)"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              rows={3}
+              className="resize-none"
+            />
+            <Button 
+              onClick={handleAskQuestion} 
+              disabled={loading || !question.trim()}
+              className="w-full"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  分析中...
+                </>
+              ) : (
+                '提问'
+              )}
+            </Button>
+
+            {qaResult && (
+              <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="font-semibold">AI 回答</span>
+                  <Badge variant="outline">{qaResult.confidence}</Badge>
+                </div>
+                <p className="text-sm leading-relaxed">{qaResult.answer}</p>
+                
+                {qaResult.sources.length > 0 && (
+                  <div className="mt-3 pt-3 border-t">
+                    <p className="text-xs text-gray-500 mb-2">信息来源:</p>
+                    {qaResult.sources.map((source, idx) => (
+                      <div key={idx} className="text-xs text-gray-600 ml-4">
+                        • 文档 {source.doc_index} ({source.relevance})
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {qaResult.follow_up_questions.length > 0 && (
+                  <div className="mt-3 pt-3 border-t">
+                    <p className="text-xs text-gray-500 mb-2">建议追问:</p>
+                    {qaResult.follow_up_questions.map((q, idx) => (
+                      <Button
+                        key={idx}
+                        variant="link"
+                        size="sm"
+                        className="text-xs p-0 h-auto"
+                        onClick={() => setQuestion(q)}
+                      >
+                        • {q}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 风险监控 Tab */}
+        {activeTab === 'risk' && companyId && (
+          <div className="space-y-4">
+            <Button 
+              onClick={handleRiskMonitor} 
+              disabled={loading}
+              className="w-full"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  分析中...
+                </>
+              ) : (
+                '执行风险监控'
+              )}
+            </Button>
+
+            {riskResult && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold">整体风险等级</span>
+                  <Badge className={getRiskLevelColor(riskResult.overall_risk_level)}>
+                    {riskResult.overall_risk_level.toUpperCase()}
+                  </Badge>
+                </div>
+
+                <p className="text-sm text-gray-600">{riskResult.summary}</p>
+
+                {riskResult.risk_alerts.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold">风险预警:</p>
+                    {riskResult.risk_alerts.map((alert, idx) => (
+                      <div key={idx} className="p-3 bg-orange-50 border-l-4 border-orange-400 rounded">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge variant="outline" className="text-xs">
+                            {alert.risk_type}
+                          </Badge>
+                          <Badge className={getRiskLevelColor(alert.severity)}>
+                            {alert.severity}
+                          </Badge>
+                        </div>
+                        <p className="text-sm font-semibold">{alert.title}</p>
+                        <p className="text-xs text-gray-600 mt-1">{alert.description}</p>
+                        {alert.recommended_action && (
+                          <p className="text-xs text-blue-600 mt-2">
+                            💡 建议: {alert.recommended_action}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {riskResult.positive_signals.length > 0 && (
+                  <div className="p-3 bg-green-50 rounded">
+                    <p className="text-sm font-semibold mb-2">积极信号:</p>
+                    {riskResult.positive_signals.map((signal, idx) => (
+                      <p key={idx} className="text-xs text-gray-600">✓ {signal}</p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 文档分析 Tab */}
+        {activeTab === 'analyze' && documentId && (
+          <div className="space-y-4">
+            <Button 
+              onClick={handleAnalyzeDocument} 
+              disabled={loading}
+              className="w-full"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  分析中...
+                </>
+              ) : (
+                '分析文档'
+              )}
+            </Button>
+          </div>
+        )}
+
+        {/* 投资洞察 Tab */}
+        {activeTab === 'insight' && companyId && (
+          <div className="space-y-4">
+            <Button 
+              onClick={handleGenerateInsight} 
+              disabled={loading}
+              className="w-full"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  生成中...
+                </>
+              ) : (
+                '生成投资洞察'
+              )}
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

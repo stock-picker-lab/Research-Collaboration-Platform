@@ -14,7 +14,7 @@ from app.api import (
     copilot_router, alert_router, workbench_router, dashboard_router, management_router,
     portfolios_router, watchlist_router, templates_router,
     admin_router, user_mgmt_router, audit_router, datasource_router,
-    multi_agent_router,
+    multi_agent_router, agents_router,
 )
 
 

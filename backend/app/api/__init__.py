@@ -9,3 +9,4 @@ from app.api.copilot_and_dashboard import (
 from app.api.portfolios import router as portfolios_router, watchlist_router
 from app.api.templates import router as templates_router
 from app.api.admin_routes import router as admin_router, user_mgmt_router, audit_router, datasource_router
+from app.api.v1.agents import router as agents_router

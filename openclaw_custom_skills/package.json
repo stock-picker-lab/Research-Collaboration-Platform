@@ -1,0 +1,20 @@
+{
+  "name": "investment-research-openclaw-skills",
+  "version": "1.0.0",
+  "description": "投研协作平台 OpenClaw 自定义技能包",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "openclaw",
+    "investment",
+    "research",
+    "ai-agent"
+  ],
+  "author": "Investment Research Platform",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
