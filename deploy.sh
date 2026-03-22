@@ -136,15 +136,19 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=${PG_PASSWORD}
 DATABASE_URL=postgresql+asyncpg://postgres:${PG_PASSWORD}@postgres:5432/research_platform
 DATABASE_SYNC_URL=postgresql://postgres:${PG_PASSWORD}@postgres:5432/research_platform
+DB_ECHO=false
 
 # Redis
 REDIS_URL=redis://redis:6379/0
+REDIS_EVENT_BUS_DB=1
 
 # LLM API配置 (需要手动配置)
 # 请从环境变量或手动设置 LLM_API_KEY
 LLM_API_KEY=\${LLM_API_KEY:-your_llm_api_key_here}
 LLM_BASE_URL=https://api.lkeap.com/v1
 LLM_MODEL=kimi-k2.5
+LLM_TEMPERATURE=0.7
+LLM_MAX_TOKENS=4096
 
 # Kimi K2.5 特定配置
 KIMI_MODEL=kimi-k2.5
@@ -156,6 +160,10 @@ OPENCLAW_BASE_URL=http://openclaw:18789
 OPENCLAW_API_KEY=${OPENCLAW_API_KEY}
 OPENCLAW_ENABLED=true
 OPENCLAW_TIMEOUT=300
+OPENCLAW_MODEL=kimi-k2.5
+
+# 向量嵌入模型
+EMBEDDING_MODEL=text-embedding-ada-002
 
 # 后端API密钥 (供OpenClaw技能调用)
 BACKEND_API_KEY=${BACKEND_API_KEY}

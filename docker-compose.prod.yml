@@ -58,20 +58,35 @@ services:
     build: ./backend
     container_name: research-backend
     restart: always
+    env_file:
+      - .env.prod
     environment:
       APP_ENV: production
       DEBUG: "false"
       SECRET_KEY: ${SECRET_KEY:-change-this-to-a-secure-random-string}
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-research_platform}
       DATABASE_SYNC_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-research_platform}
+      DB_ECHO: "false"
       REDIS_URL: redis://redis:6379/0
+      REDIS_EVENT_BUS_DB: "1"
       MINIO_ENDPOINT: minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
       CELERY_BROKER_URL: redis://redis:6379/3
       CELERY_RESULT_BACKEND: redis://redis:6379/4
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-this-to-a-secure-random-string}
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: "30"
       CORS_ORIGINS: '["http://localhost:3000","http://${SERVER_IP:-localhost}:3000","http://${SERVER_IP:-localhost}"]'
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4-turbo}
+      LLM_TEMPERATURE: "${LLM_TEMPERATURE:-0.7}"
+      LLM_MAX_TOKENS: "${LLM_MAX_TOKENS:-4096}"
+      OPENCLAW_BASE_URL: ${OPENCLAW_BASE_URL:-http://openclaw:18789}
+      OPENCLAW_API_KEY: ${OPENCLAW_API_KEY:-}
+      OPENCLAW_ENABLED: "${OPENCLAW_ENABLED:-true}"
+      OPENCLAW_MODEL: ${OPENCLAW_MODEL:-gpt-4-turbo}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-ada-002}
       LOG_LEVEL: INFO
     ports:
       - "127.0.0.1:8000:8000"
