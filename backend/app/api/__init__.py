@@ -12,3 +12,4 @@ from app.api.admin_routes import router as admin_router, user_mgmt_router, audit
 from app.api.v1.agents import router as agents_router
 from app.api.v1.search import router as search_router
 from app.api.v1.history import router as history_router
+from app.api.v1.im_webhook import router as im_webhook_router

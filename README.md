@@ -10,16 +10,17 @@
 - 💡 结构化结论卡 (3-3-2-1 框架)
 - 🤝 研究协作与问题追踪
 - 📊 持仓管理与预警系统
-- 🤖 OpenClaw 多 Agent 协同 (设计中)
+- 🤖 OpenClaw 多 Agent 协同 (✅ 100% 完成)
+- 📱 **NEW!** IM软件集成 (企业微信/钉钉/飞书/Slack)
 - 🚀 Docker 一键部署
 
 ---
 
 ## 1. OpenClaw 多 Agent 协同框架（核心亮点）
 
-> **🎉 状态:** ✅ 100% 完成,生产就绪! 
+> **🎉 状态:** ✅ 100% 完成,生产就绪! **NEW:** 📱 支持IM软件集成!
 > 
-> **📍 完整文档:** [OPENCLAW_100_PERCENT.md](./OPENCLAW_100_PERCENT.md) | [快速启动](./OPENCLAW_QUICKSTART.md) | [集成方案](./OPENCLAW_INTEGRATION_PLAN.md)
+> **📍 完整文档:** [OPENCLAW_100_PERCENT.md](./OPENCLAW_100_PERCENT.md) | [快速启动](./OPENCLAW_QUICKSTART.md) | **[IM集成指南](./IM_INTEGRATION_GUIDE.md)** | [集成方案](./OPENCLAW_INTEGRATION_PLAN.md)
 
 ### 1.1 为什么引入 OpenClaw？
 

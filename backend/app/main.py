@@ -14,7 +14,7 @@ from app.api import (
     copilot_router, alert_router, workbench_router, dashboard_router, management_router,
     portfolios_router, watchlist_router, templates_router,
     admin_router, user_mgmt_router, audit_router, datasource_router,
-    multi_agent_router, agents_router, search_router, history_router,
+    multi_agent_router, agents_router, search_router, history_router, im_webhook_router,
 )
 
 
@@ -74,6 +74,11 @@ app.include_router(user_mgmt_router, prefix=API_PREFIX)
 app.include_router(audit_router, prefix=API_PREFIX)
 app.include_router(datasource_router, prefix=API_PREFIX)
 app.include_router(multi_agent_router, prefix=API_PREFIX)
+# OpenClaw Agent集成路由
+app.include_router(agents_router, prefix=f"{API_PREFIX}/agents", tags=["OpenClaw Agents"])
+app.include_router(search_router, prefix=f"{API_PREFIX}/search", tags=["Vector Search"])
+app.include_router(history_router, prefix=f"{API_PREFIX}/agent-history", tags=["Agent History"])
+app.include_router(im_webhook_router, prefix=f"{API_PREFIX}/im-webhook", tags=["IM Integration"])
 
 
 # ---------- 健康检查 ----------
